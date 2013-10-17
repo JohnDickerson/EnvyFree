@@ -78,6 +78,7 @@ def allocate(model):
     try:
         # Build the envy-free IP
         p = cplex.Cplex()
+        p.set_results_stream(None)
         __build_envyfree_problem(p, model)
 
         # Solve the IP
@@ -85,11 +86,17 @@ def allocate(model):
 
         # Was there a solution? (not guaranteed for envy-free)
         sol = p.solution
-        print "{0:d}:  {1}".format(sol.get_status(), sol.status[sol.get_status()])
-        print "Objective value: {0:2f}".format(sol.get_objective_value()) 
-
+        if sol.get_status() == 3 or sol.get_status() == 103:
+            print "Infeasible IP."
+            raise DoesNotExistException("No (all-items-allocated) envy-free solution exists.")
+        else:
+            print "{0:d}:  {1}   ||   Objective value: {2:2f}".format(
+                sol.get_status(), 
+                sol.status[sol.get_status()], 
+                sol.get_objective_value())
+            
+        
     except CplexError, ex:
         print ex
-        return 
-
+        return
 
