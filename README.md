@@ -6,7 +6,7 @@ Computes envy-free allocations of items to agents.
 
 External Dependencies
 =====================
-The `allocator` module uses CPLEX, so you will need to install [cplex](http://www-01.ibm.com/software/commerce/optimization/cplex-optimizer/).  IBM offers a free academic license.
+The `allocator` module uses [CPLEX](http://www-01.ibm.com/software/commerce/optimization/cplex-optimizer/), so you will need to install it.  IBM offers a free license via its [Academic Initiative](http://www-03.ibm.com/ibm/university/academic/pub/page/academic_initiative).
 
 
 Troubleshooting
