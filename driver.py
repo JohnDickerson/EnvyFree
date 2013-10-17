@@ -54,11 +54,11 @@ if __name__ == '__main__':
             build_s_avg = build_s_accum / N
             solve_s_avg = solve_s_accum / N
             print "Solve Avg: {0:3f}, Min: {1:3f}, Max: {2:3f}".format(solve_s_avg, solve_s_min, solve_s_max)
-            print "Fraction feasible: {0} / {1}".format(sol_exists_accum, N)
+            print "N={0}, M={1}, fraction feasible: {2} / {3}".format(num_agents, num_items, sol_exists_accum, N)
             writer.writerow([num_agents, num_items, N, 
                              sol_exists_accum, 
                              build_s_avg, build_s_min, build_s_max,
                              solve_s_avg, solve_s_min, solve_s_max,
                              ])
-
+            csvfile.flush()
 
