@@ -1,5 +1,7 @@
 import cplex
 from cplex.exceptions import CplexError
+import time
+import sys
 
 class DoesNotExistException(Exception):
     pass
@@ -9,7 +11,9 @@ def __flatten(list2d):
     return [val for val_list in list2d for val in val_list]
 
 def __build_envyfree_problem(p, model):
-    
+   
+    start = time.clock()
+
     #
     # Objective: max \sum_i \sum_j v_{ij} x_{ij}
     p.objective.set_sense(p.objective.sense.maximize)
@@ -71,6 +75,8 @@ def __build_envyfree_problem(p, model):
                              senses = senses,
                              )
 
+    stop = time.clock()
+    return stop-start
 
 
 def allocate(model):
@@ -79,24 +85,29 @@ def allocate(model):
         # Build the envy-free IP
         p = cplex.Cplex()
         p.set_results_stream(None)
-        __build_envyfree_problem(p, model)
+        build_s = __build_envyfree_problem(p, model)
 
         # Solve the IP
+        start = time.clock()
         p.solve()
+        stop = time.clock()
+        solve_s = stop - start
 
         # Was there a solution? (not guaranteed for envy-free)
+        feasible = True
         sol = p.solution
         if sol.get_status() == 3 or sol.get_status() == 103:
-            print "Infeasible IP."
-            raise DoesNotExistException("No (all-items-allocated) envy-free solution exists.")
+            feasible = False
         else:
             print "{0:d}:  {1}   ||   Objective value: {2:2f}".format(
                 sol.get_status(), 
                 sol.status[sol.get_status()], 
                 sol.get_objective_value())
-            
+
+        # Keep stats on feasibility, time
+        return (feasible, build_s, solve_s)
         
     except CplexError, ex:
         print ex
-        return
+        sys.exit(-1)
 
