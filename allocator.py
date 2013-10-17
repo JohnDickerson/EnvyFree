@@ -36,12 +36,12 @@ def __build_envyfree_problem(p, model):
     # Each item can be allocated to at most one agent [SOS1]
     # For each item j, \sum_i x_{ij} \leq 1
     for j in xrange(model.m):
-        rows.append([ [j + i*model.n for i in xrange(model.m)],
+        rows.append([ [j + i*model.m for i in xrange(model.n)],
                       [1]*model.n
                       ])
-        senses.append("L")
+        senses.append("E")
         rhs.append(1)
-        
+
     # For each allocation A_i to agent i, and each allocation A_j to agent j,
     # make sure agent i values A_i at least as much as she values A_j
     for a_i in xrange(model.n):
@@ -80,10 +80,13 @@ def allocate(model):
         p = cplex.Cplex()
         __build_envyfree_problem(p, model)
 
+        # Solve the IP
+        p.solve()
+
         # Was there a solution? (not guaranteed for envy-free)
         sol = p.solution
-        print sol.get_status()
-        print sol.status[sol.get_status()]
+        print "{0:d}:  {1}".format(sol.get_status(), sol.status[sol.get_status()])
+        print "Objective value: {0:2f}".format(sol.get_objective_value()) 
 
     except CplexError, ex:
         print ex
