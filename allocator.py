@@ -36,20 +36,35 @@ def __build_envyfree_problem(p, model):
     # Each item can be allocated to at most one agent [SOS1]
     # For each item j, \sum_i x_{ij} \leq 1
     for j in xrange(model.m):
-        indices = []
-        values = []
-        for i in xrange(model.n):
-            indices.append(j + i*model.n)
-            values.append(1)
-        rows.append([indices, values])
+        rows.append([ [j + i*model.n for i in xrange(model.m)],
+                      [1]*model.n
+                      ])
         senses.append("L")
         rhs.append(1)
+        
+    # For each allocation A_i to agent i, and each allocation A_j to agent j,
+    # make sure agent i values A_i at least as much as she values A_j
+    for a_i in xrange(model.n):
 
-    # For each allocation to agent i, make sure 
+        # Add A_i's valuation for her allocation 
+        i_indices = [a_i*model.m + j for j in xrange(model.m)]
+        i_values = model.u[a_i]
 
+        for a_j in xrange(model.n):
 
+            # Agent i is not envious of her own allocation
+            if a_i == a_j:
+                continue
+        
+            # Subtract off A_i's value for each of A_j's allocated items
+            j_indices = [a_j*model.m + j for j in xrange(model.m)]
+            j_values = [ -1*val for val in model.u[a_i] ]
 
-    
+            rows.append([ i_indices + j_indices,
+                          i_values + j_values
+                          ])
+            senses.append("G")
+            rhs.append(0)
 
     p.linear_constraints.add(lin_expr = rows,
                              rhs = rhs, 

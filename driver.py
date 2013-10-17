@@ -8,7 +8,7 @@ import time
 def run():
 
     # Randomly generate some data for N agents and M items
-    m = Model.generate(5,5)
+    m = Model.generate(2,10)
 
     # Compute an envy-free allocation (if it exists)
     start = time.clock()
