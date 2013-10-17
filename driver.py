@@ -2,13 +2,14 @@
 
 from model import Model
 import allocator
+from allocator import DoesNotExistException
 import time
 
 def run():
 
     # Randomly generate some data for N agents and M items
     m = Model.generate(5,5)
-    
+
     # Compute an envy-free allocation (if it exists)
     start = time.clock()
     try:

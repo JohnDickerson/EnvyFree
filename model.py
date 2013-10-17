@@ -20,7 +20,7 @@ class Model:
             
             # Sample some integer values
             u = [0]
-            for _ in xrange(num_items):
+            for _ in xrange(num_items-1):
                 u.append( random.randint(0,max_pts) )
             u.append(max_pts)
 
@@ -32,7 +32,7 @@ class Model:
                 else:
                     u[idx-1] = u[idx]-u[idx-1]
             del u[-1]
-        
+            
             # Randomly distribute the sampled values to items
             random.shuffle(u)
             
