@@ -25,9 +25,9 @@ if __name__ == '__main__':
         writer = csv.writer(csvfile, delimiter=',')
 
         num_agents = 10
-        for num_items in range(num_agents,25):
-
-            N = 100
+        #for num_items in range(num_agents,25):
+        for num_items in [10000]:
+            N = 1
             build_s_accum = solve_s_accum = 0.0
             build_s_min = solve_s_min = 10000.0
             build_s_max = solve_s_max = -1.0
