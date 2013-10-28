@@ -1,4 +1,5 @@
-import random
+import random        # for uniform random
+import numpy as np   # for Zipf sampling
 
 class Model:
     """Stores utility functions for each of N agents for M items"""
@@ -9,7 +10,9 @@ class Model:
         self.m = num_items
 
     @staticmethod
-    def generate(num_agents, num_items):
+    def generate_urand_int(num_agents, num_items):
+        """Generates a random set of ints that sum to 10*num_items
+        as utilities for num_agents agents"""
 
         # Each agent is given a budget of max_pts valuation points
         max_pts = 10*num_items
@@ -41,3 +44,35 @@ class Model:
 
         return Model(utilities, num_items)
         
+
+    @staticmethod
+    def generate_urand_real(num_agents, num_items):
+        """Generates a random set of reals (variable sum) as utilities
+        for num_agents agents"""
+
+        # Generate random utility functions for each agent
+        utilities = []
+        for _ in xrange(num_agents):
+            
+            # Sample some integer values
+            u = [random.random() for _ in xrange(num_items)]            
+            utilities.append(u)
+             
+        return Model(utilities, num_items)
+        
+
+    @staticmethod
+    def generate_zipf_real(num_agents, num_items, alpha):
+        """Pulls real-valued utilities from a Zipf distribution with 
+        parameter alpha for each of the num_agents agents"""
+        
+        utilities = []
+
+        for _ in xrange(num_agents):
+        
+            # Draws num_items valuations from Zipf with parameter alpha
+            u = np.random.zipf(alpha, num_items)
+
+            utilities.append(u)
+
+        return Model(utilities, num_items)
