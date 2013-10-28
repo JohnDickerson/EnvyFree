@@ -24,10 +24,17 @@ if __name__ == '__main__':
         # Write overall stats to out.csv
         writer = csv.writer(csvfile, delimiter=',')
 
-        num_agents = 10
-        #for num_items in range(num_agents,25):
-        for num_items in [10000]:
-            N = 1
+        # Phase transition plots runtime, %feas vs. #items
+        for num_agents, num_items in zip(
+            [10], 
+            range(10,100,1)
+            ):
+            
+            # Never feasible if fewer items than agents
+            if num_items < num_agents:
+                continue
+
+            N = 100
             build_s_accum = solve_s_accum = 0.0
             build_s_min = solve_s_min = 10000.0
             build_s_max = solve_s_max = -1.0
@@ -53,6 +60,8 @@ if __name__ == '__main__':
             # Report stats over all N runs, both to stdout and to out.csv
             build_s_avg = build_s_accum / N
             solve_s_avg = solve_s_accum / N
+
+            print "Build Avg: {0:3f}, Min: {1:3f}, Max: {2:3f}".format(build_s_avg, build_s_min, build_s_max)
             print "Solve Avg: {0:3f}, Min: {1:3f}, Max: {2:3f}".format(solve_s_avg, solve_s_min, solve_s_max)
             print "N={0}, M={1}, fraction feasible: {2} / {3}".format(num_agents, num_items, sol_exists_accum, N)
             writer.writerow([num_agents, num_items, N, 
