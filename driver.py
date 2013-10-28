@@ -7,12 +7,20 @@ from allocator import DoesNotExistException
 import time
 import csv
 
-def run(num_agents, num_items):
+class DistTypes:
+    urand_int, urand_real, zipf_real = range(3)
+
+def run(num_agents, num_items, dist_type):
 
     # Randomly generate some data for N agents and M items
-    #m = Model.generate_urand_int(num_agents, num_items)
-    m = Model.generate_urand_real(num_agents, num_items)
-    #m = Model.generate_zipf_real(num_agents, num_items, 2.)
+    if dist_type == DistTypes.urand_int:
+        m = Model.generate_urand_int(num_agents, num_items)
+    elif dist_type == DistTypes.urand_real:
+        m = Model.generate_urand_real(num_agents, num_items)
+    elif dist_type == DistTypes.zipf_real:
+        m = Model.generate_zipf_real(num_agents, num_items, 2.)
+    else:
+        raise Exception("Distribution type {0} is not recognized.".format(dist_type))
 
     # Compute an envy-free allocation (if it exists)
     sol_exists, build_s, solve_s = allocator.allocate(m)
@@ -23,6 +31,12 @@ if __name__ == '__main__':
 
     # Write one row per run, or one row per N runs (aggregate)?
     write_all = True
+
+    # Distribution of valuations we want to use
+    dist_type = DistTypes.urand_int
+
+    # How many repeat runs per parameter vector?
+    N = 100
 
     with open('out.csv', 'wb') as csvfile:
 
@@ -38,7 +52,6 @@ if __name__ == '__main__':
                 if num_items < num_agents:
                     continue
 
-                N = 100
                 build_s_accum = solve_s_accum = 0.0
                 build_s_min = solve_s_min = 10000.0
                 build_s_max = solve_s_max = -1.0
@@ -46,7 +59,7 @@ if __name__ == '__main__':
                 for _ in xrange(N):
 
                     # Generate an instance and solve it; returns runtime of IP write+solve
-                    sol_exists, build_s, solve_s = run(num_agents, num_items)
+                    sol_exists, build_s, solve_s = run(num_agents, num_items, dist_type)
 
                     # Maintain stats on the runs
                     sol_exists_accum += 1 if sol_exists else 0
@@ -63,7 +76,7 @@ if __name__ == '__main__':
 
                     # If we're recording ALL data, write details for this one run
                     if write_all:
-                        writer.writerow([num_agents, num_items, N, sol_exists, build_s, solve_s])
+                        writer.writerow([num_agents, num_items, dist_type, N, sol_exists, build_s, solve_s])
                 # Report stats over all N runs, both to stdout and to out.csv
                 build_s_avg = build_s_accum / N
                 solve_s_avg = solve_s_accum / N
@@ -74,7 +87,7 @@ if __name__ == '__main__':
 
                 # If we're only writing aggregate data, write that now
                 if not write_all:
-                    writer.writerow([num_agents, num_items, N, 
+                    writer.writerow([num_agents, num_items, dist_type, N, 
                                      sol_exists_accum, 
                                      build_s_avg, build_s_min, build_s_max,
                                      solve_s_avg, solve_s_min, solve_s_max,

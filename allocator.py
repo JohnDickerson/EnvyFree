@@ -12,7 +12,7 @@ def __flatten(list2d):
 
 def __build_envyfree_problem(p, model):
    
-    start = time.clock()
+    start = time.time()
 
     #
     # Objective: max \sum_i \sum_j v_{ij} x_{ij}
@@ -75,7 +75,7 @@ def __build_envyfree_problem(p, model):
                              senses = senses,
                              )
 
-    stop = time.clock()
+    stop = time.time()
     return stop-start
 
 
@@ -88,9 +88,9 @@ def allocate(model):
         build_s = __build_envyfree_problem(p, model)
 
         # Solve the IP
-        start = time.clock()
+        start = time.time()
         p.solve()
-        stop = time.clock()
+        stop = time.time()
         solve_s = stop - start
 
         # Was there a solution? (not guaranteed for envy-free)
