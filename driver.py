@@ -33,10 +33,10 @@ if __name__ == '__main__':
     write_all = True
 
     # Distribution of valuations we want to use
-    dist_type = DistTypes.urand_int
+    dist_type = DistTypes.zipf_real
 
     # How many repeat runs per parameter vector?
-    N = 100
+    N = 10
 
     with open('out.csv', 'wb') as csvfile:
 
@@ -44,10 +44,10 @@ if __name__ == '__main__':
         writer = csv.writer(csvfile, delimiter=',')
 
         for num_agents in range(10,26,5):
-            
+
             # Phase transition plots runtime, %feas vs. #items
             for num_items in range(10,100,1):
-                
+            #for num_items in range(99,27,-1):
                 # Never feasible if fewer items than agents
                 if num_items < num_agents:
                     continue

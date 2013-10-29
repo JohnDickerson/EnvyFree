@@ -13,7 +13,7 @@
 analysis/*.pdf
 analysis/*.ps
 analysis/*.eps
-
+*BAK
 
 # Python compiled files
 *.py[cod]

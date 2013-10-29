@@ -71,7 +71,7 @@ class Model:
         for _ in xrange(num_agents):
         
             # Draws num_items valuations from Zipf with parameter alpha
-            u = np.random.zipf(alpha, num_items)
+            u = np.random.zipf(alpha, num_items).tolist()   # Need list, not np.array for CPLEX
 
             utilities.append(u)
 
