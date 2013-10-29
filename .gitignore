@@ -8,8 +8,12 @@
 \#*
 .#*
 
-# Output data #
+# Output and temporary data #
 *.csv
+analysis/*.pdf
+analysis/*.ps
+analysis/*.eps
+
 
 # Python compiled files
 *.py[cod]
