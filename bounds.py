@@ -7,7 +7,6 @@ def max_contested_feasible(model):
     if $M < \sum_j (2k_j-1)$, then no envy-free allocation exists."""
 
     conflict_counts = {}
-    min_item_ct = 0
 
     # Determine contested items, and how many agents contest each item
     for u in model.u:
@@ -17,7 +16,13 @@ def max_contested_feasible(model):
         else:
             conflict_counts[max_idx] += 1
 
+    # \sum_j 2k_j - 1     for any item j with k_j > 1 conflicts
+    min_item_ct = 0
+    for item, conflict_count in conflict_counts.items():
+        min_item_ct += 2*conflict_count - 1   # works for k_j = 1, too
     
+    #print "#Items: {0}, #Min Items: {1}".format(model.m, min_item_ct)
+
     # If we don't have enough items to go around, no E-F solution can exist
     if model.m < min_item_ct:
         return False
