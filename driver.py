@@ -1,26 +1,33 @@
 #!/usr/bin/env python
 
 from model import Model
+from model import DupValues
 import allocator
+import bounds
 from allocator import DoesNotExistException
 
 import time
 import csv
+import sys
 
 class DistTypes:
     urand_int, urand_real, zipf_real = range(3)
 
-def run(num_agents, num_items, dist_type):
+def run(num_agents, num_items, dist_type, dup_values):
 
     # Randomly generate some data for N agents and M items
     if dist_type == DistTypes.urand_int:
-        m = Model.generate_urand_int(num_agents, num_items)
+        m = Model.generate_urand_int(num_agents, num_items, dup_values)
     elif dist_type == DistTypes.urand_real:
-        m = Model.generate_urand_real(num_agents, num_items)
+        m = Model.generate_urand_real(num_agents, num_items, dup_values)
     elif dist_type == DistTypes.zipf_real:
-        m = Model.generate_zipf_real(num_agents, num_items, 2.)
+        m = Model.generate_zipf_real(num_agents, num_items, 2., dup_values)
     else:
         raise Exception("Distribution type {0} is not recognized.".format(dist_type))
+
+    if not bounds.max_contested_feasible(m):
+        print "Bounded infeasible!"
+        sys.exit(-1)
 
     # Compute an envy-free allocation (if it exists)
     sol_exists, build_s, solve_s = allocator.allocate(m)
@@ -34,6 +41,9 @@ if __name__ == '__main__':
 
     # Distribution of valuations we want to use
     dist_type = DistTypes.zipf_real
+
+    # How to handle duplicate valuations for different items by the same agent?
+    dup_values = DupValues.disallowed_max
 
     # How many repeat runs per parameter vector?
     N = 10
@@ -59,7 +69,7 @@ if __name__ == '__main__':
                 for _ in xrange(N):
 
                     # Generate an instance and solve it; returns runtime of IP write+solve
-                    sol_exists, build_s, solve_s = run(num_agents, num_items, dist_type)
+                    sol_exists, build_s, solve_s = run(num_agents, num_items, dist_type, dup_values)
 
                     # Maintain stats on the runs
                     sol_exists_accum += 1 if sol_exists else 0

@@ -1,6 +1,9 @@
 import random        # for uniform random
 import numpy as np   # for Zipf sampling
 
+class DupValues:
+    allowed, disallowed, disallowed_max = range(3)
+
 class Model:
     """Stores utility functions for each of N agents for M items"""
 
@@ -9,8 +12,29 @@ class Model:
         self.u = utilities
         self.m = num_items
 
+
+
+
     @staticmethod
-    def generate_urand_int(num_agents, num_items):
+    def __legal_wrt_duplicates(u, dup_values):
+        if dup_values == DupValues.allowed:
+            # No rules on duplication; done
+            return True
+        elif dup_values == DupValues.disallowed:
+            # No duplicate valuations AT ALL; set is all unique elements
+            if len(u) == len(set(u)):
+                return True
+        else:
+            # Only need to make sure top and second-to-top elements
+            # have different valuations
+            descending = sorted(u, reverse=True)
+            if len(descending) > 1 and descending[0] != descending[1]:
+                return True
+
+        return False
+
+    @staticmethod
+    def generate_urand_int(num_agents, num_items, dup_values = DupValues.allowed):
         """Generates a random set of ints that sum to 10*num_items
         as utilities for num_agents agents"""
 
@@ -20,33 +44,41 @@ class Model:
         # Generate random utility functions for each agent
         utilities = []
         for _ in xrange(num_agents):
-            
-            # Sample some integer values
-            u = [0]
-            for _ in xrange(num_items-1):
-                u.append( random.randint(0,max_pts) )
-            u.append(max_pts)
 
-            # Make sampled integer values sum to max_pts
-            u = sorted(u)
-            for idx, val in enumerate(u):
-                if idx==0:
-                    continue
-                else:
-                    u[idx-1] = u[idx]-u[idx-1]
-            del u[-1]
+            while(True):
             
-            # Randomly distribute the sampled values to items
-            random.shuffle(u)
-            
+                # Sample some integer values
+                u = [0]
+                for _ in xrange(num_items-1):
+                    u.append( random.randint(0,max_pts) )
+                u.append(max_pts)
+
+                # Make sampled integer values sum to max_pts
+                u = sorted(u)
+                for idx, val in enumerate(u):
+                    if idx==0:
+                        continue
+                    else:
+                        u[idx-1] = u[idx]-u[idx-1]
+                del u[-1]
+
+                # Randomly distribute the sampled values to items
+                random.shuffle(u)
+
+                # Make sure utilities align with duplicate valuation allowance
+                if Model.__legal_wrt_duplicates(u, dup_values):
+                    break
+
+            # Legal utility vector for agent created; record and continue
             utilities.append(u)
-             
+            
+
 
         return Model(utilities, num_items)
         
 
     @staticmethod
-    def generate_urand_real(num_agents, num_items):
+    def generate_urand_real(num_agents, num_items, dup_values = DupValues.allowed):
         """Generates a random set of reals (variable sum) as utilities
         for num_agents agents"""
 
@@ -54,15 +86,20 @@ class Model:
         utilities = []
         for _ in xrange(num_agents):
             
-            # Sample some integer values
-            u = [random.random() for _ in xrange(num_items)]            
+            while(True):
+                # Sample some integer values
+                u = [random.random() for _ in xrange(num_items)]
+
+                if Model.__legal_wrt_duplicates(u, dup_values):
+                    break
+
             utilities.append(u)
              
         return Model(utilities, num_items)
         
 
     @staticmethod
-    def generate_zipf_real(num_agents, num_items, alpha):
+    def generate_zipf_real(num_agents, num_items, alpha, dup_values = DupValues.allowed):
         """Pulls real-valued utilities from a Zipf distribution with 
         parameter alpha for each of the num_agents agents"""
         
@@ -70,8 +107,11 @@ class Model:
 
         for _ in xrange(num_agents):
         
-            # Draws num_items valuations from Zipf with parameter alpha
-            u = np.random.zipf(alpha, num_items).tolist()   # Need list, not np.array for CPLEX
+            while(True):
+                # Draws num_items valuations from Zipf with parameter alpha
+                u = np.random.zipf(alpha, num_items).tolist()   # Need list, not np.array for CPLEX
+                if Model.__legal_wrt_duplicates(u, dup_values):
+                    break
 
             utilities.append(u)
 
