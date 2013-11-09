@@ -25,7 +25,9 @@ def run(num_agents, num_items, dist_type, dup_values):
     else:
         raise Exception("Distribution type {0} is not recognized.".format(dist_type))
 
-    if not bounds.max_contested_feasible(m):
+    # Do our bounding at the root to check for naive infeasibility
+    is_possibly_feasible, bounding_s = bounds.max_contested_feasible(m)
+    if not is_possibly_feasible:
         print "Bounded infeasible!"
         sys.exit(-1)
 
