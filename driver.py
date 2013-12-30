@@ -42,10 +42,10 @@ if __name__ == '__main__':
     write_all = True
 
     # Distribution of valuations we want to use
-    dist_type = DistTypes.zipf_real
+    dist_type = DistTypes.urand_real#DistTypes.zipf_real
 
     # How to handle duplicate valuations for different items by the same agent?
-    dup_values = DupValues.disallowed_max
+    dup_values = DupValues.allowed
 
     # How many repeat runs per parameter vector?
     N = 10
