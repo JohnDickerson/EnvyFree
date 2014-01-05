@@ -26,10 +26,10 @@ def run(num_agents, num_items, dist_type, dup_values):
         raise Exception("Distribution type {0} is not recognized.".format(dist_type))
 
     # Do our bounding at the root to check for naive infeasibility
-    is_possibly_feasible, bounding_s = bounds.max_contested_feasible(m)
-    if not is_possibly_feasible:
-        print "Bounded infeasible!"
-        sys.exit(-1)
+    #is_possibly_feasible, bounding_s = bounds.max_contested_feasible(m)
+    #if not is_possibly_feasible:
+    #    print "Bounded infeasible!"
+    #    sys.exit(-1)
 
     # Compute an envy-free allocation (if it exists)
     sol_exists, build_s, solve_s = allocator.allocate(m)

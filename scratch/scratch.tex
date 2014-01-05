@@ -1,0 +1,39 @@
+\documentclass[9pt]{article}
+\usepackage{ifthen}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[left=3cm,top=3cm,right=4cm,nohead,bottom=3cm]{geometry}
+
+\usepackage{rotating}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{theorem}{Theorem}[section]
+%\newtheorem{proposition}[theorem]{Proposition}[section]
+\newtheorem{proposition}{Proposition}
+\newtheorem{definition}{Definition}
+
+\setlength{\parindent}{0.25in}
+
+\newcommand\deficit[1]{\text{def}(#1)}
+
+\begin{document}
+
+\today{} --- When do envy-free allocations exist? --- Dickerson, Goldman, Karp, Procaccia, Sandholm
+
+\rule{0.33\linewidth}{2pt}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Experimental Ideas}
+\begin{enumerate}
+\item Ran for random integral distributions; need them for u.a.r. real distributions (running now).  So far these are harder for CPLEX to solve by a large margin.  Why?  Bounding easier.
+\item Had some Zipf distribution runs from earlier, probably going to be subsumed by better experiments.
+\end{enumerate}
+
+
+\end{document}

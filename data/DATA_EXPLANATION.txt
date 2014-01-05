@@ -1,0 +1,10 @@
+phase_transition_0.tgz:
+--> DistTypes.urand_int (uniform random integer)
+--> #agents 10, 15, 20
+
+phase_transition_1.tgz:
+--> DistTypes.urand_real (uniform random real [0,1])
+
+phase_transition_2.tgz:
+--> DistTypes.zipf_real (independent utilities from Zipf distribution, alpha=2)
+--> #agents 10, 15, 20
