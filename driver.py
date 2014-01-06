@@ -61,7 +61,7 @@ if __name__ == '__main__':
         # Write overall stats to out.csv
         writer = csv.writer(csvfile, delimiter=',')
 
-        for num_agents in range(5,26,5):
+        for num_agents in range(10,26,5):
 
             # Phase transition plots runtime, %feas vs. #items
             for num_items in range(num_agents,100,1):
@@ -94,7 +94,7 @@ if __name__ == '__main__':
 
                     # If we're recording ALL data, write details for this one run
                     if write_all:
-                        writer.writerow([num_agents, num_items, dist_type, N, sol_exists, build_s, solve_s, obj_type])
+                        writer.writerow([num_agents, num_items, dist_type, N, obj_type, sol_exists, build_s, solve_s])
                 # Report stats over all N runs, both to stdout and to out.csv
                 build_s_avg = build_s_accum / N
                 solve_s_avg = solve_s_accum / N
@@ -105,11 +105,10 @@ if __name__ == '__main__':
 
                 # If we're only writing aggregate data, write that now
                 if not write_all:
-                    writer.writerow([num_agents, num_items, dist_type, N, 
+                    writer.writerow([num_agents, num_items, dist_type, N, obj_type,
                                      sol_exists_accum, 
                                      build_s_avg, build_s_min, build_s_max,
                                      solve_s_avg, solve_s_min, solve_s_max,
-                                     obj_type,
                                      ])
                 csvfile.flush()
 
