@@ -4,15 +4,25 @@ import numpy as np   # for Zipf sampling
 class DupValues:
     allowed, disallowed, disallowed_max = range(3)
 
+class DistTypes:
+    urand_int, urand_real, zipf_real = range(3)
+
+class ObjType:
+    feasibility, social_welfare_max = range(2)
+
 class Model:
     """Stores utility functions for each of N agents for M items"""
 
-    def __init__(self, utilities, num_items):
+    def __init__(self, utilities, num_items, dist_type, dup_values):
+        # raw utilities
         self.n = len(utilities)
         self.u = utilities
         self.m = num_items
 
-
+        # properties/settings
+        self.dist_type = dist_type
+        self.dup_values = dup_values
+        self.obj_type = ObjType.feasibility
 
 
     @staticmethod
@@ -74,7 +84,7 @@ class Model:
             
 
 
-        return Model(utilities, num_items)
+        return Model(utilities, num_items, DistTypes.urand_int, dup_values)
         
 
     @staticmethod
@@ -95,7 +105,7 @@ class Model:
 
             utilities.append(u)
              
-        return Model(utilities, num_items)
+        return Model(utilities, num_items, DistTypes.urand_real, dup_values)
         
 
     @staticmethod
@@ -115,4 +125,4 @@ class Model:
 
             utilities.append(u)
 
-        return Model(utilities, num_items)
+        return Model(utilities, num_items, DistTypes.zipf_real, dup_values)

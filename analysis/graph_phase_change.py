@@ -7,7 +7,7 @@ from matplotlib.font_manager import FontProperties
 import matplotlib.patches as patches   # For the proxy twin-axis legend entry
 
 # Raw .csv file containing data
-filename_data = "../data/out_0.csv"
+filename_data = "../data/out_1.csv"
 
 # Maps column indices to the data they hold
 class Col:

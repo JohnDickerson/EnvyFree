@@ -1,5 +1,6 @@
 import cplex
 from cplex.exceptions import CplexError
+from model import ObjType
 import time
 import sys
 
@@ -14,10 +15,18 @@ def __build_envyfree_problem(p, model):
    
     start = time.time()
 
-    #
-    # Objective: max \sum_i \sum_j v_{ij} x_{ij}
-    p.objective.set_sense(p.objective.sense.maximize)
-    obj = __flatten(model.u)
+    # Set objective function
+    if model.obj_type == ObjType.social_welfare_max:
+        # Objective: max \sum_i \sum_j v_{ij} x_{ij}
+        p.objective.set_sense(p.objective.sense.maximize)
+        obj = __flatten(model.u)
+    elif model.obj_type == ObjType.feasibility:
+        # Objective: nothing [just feasibility]
+        obj = [0]*len(__flatten(model.u))
+    else:
+        print "Could not determine objective function type for model."
+        sys.exit(-1)
+
 
     # One binary variable per item per agent
     lb = [0]*len(obj)
