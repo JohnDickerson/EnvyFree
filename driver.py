@@ -12,6 +12,8 @@ import time
 import csv
 import sys
 
+current_ms_time = lambda: int(round(time.time() * 1000))
+
 def run(num_agents, num_items, dist_type, dup_values, obj_type):
 
     # Randomly generate some data for N agents and M items
@@ -52,16 +54,15 @@ if __name__ == '__main__':
     write_all = True
 
     # How many repeat runs per parameter vector?
-    N = 10
+    N = 100
 
     print "Running with dist_type={0}, dup_values={1}, obj_type={2}".format(dist_type, dup_values, obj_type)
-
-    with open('out.csv', 'wb') as csvfile:
+    with open("out_{0}.csv".format(current_ms_time()), 'wb') as csvfile:
 
         # Write overall stats to out.csv
         writer = csv.writer(csvfile, delimiter=',')
 
-        for num_agents in range(10,26,5):
+        for num_agents in range(5,26,5):
 
             # Phase transition plots runtime, %feas vs. #items
             for num_items in range(num_agents,100,1):
@@ -95,6 +96,8 @@ if __name__ == '__main__':
                     # If we're recording ALL data, write details for this one run
                     if write_all:
                         writer.writerow([num_agents, num_items, dist_type, N, obj_type, sol_exists, build_s, solve_s])
+                        csvfile.flush()
+
                 # Report stats over all N runs, both to stdout and to out.csv
                 build_s_avg = build_s_accum / N
                 solve_s_avg = solve_s_accum / N
