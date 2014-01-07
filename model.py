@@ -1,11 +1,12 @@
 import random        # for uniform random
+import copy          # for urn sampling
 import numpy as np   # for Zipf sampling
 
 class DupValues:
     allowed, disallowed, disallowed_max = range(3)
 
 class DistTypes:
-    urand_int, urand_real, zipf_real = range(3)
+    urand_int, urand_real, zipf_real, polya_urn_real = range(4)
 
 class ObjType:
     feasibility, social_welfare_max = range(2)
@@ -97,7 +98,7 @@ class Model:
         for _ in xrange(num_agents):
             
             while(True):
-                # Sample some integer values
+                # Sample some real [0,1] values
                 u = [random.random() for _ in xrange(num_items)]
 
                 if Model.__legal_wrt_duplicates(u, dup_values):
@@ -126,3 +127,42 @@ class Model:
             utilities.append(u)
 
         return Model(utilities, num_items, DistTypes.zipf_real, dup_values)
+
+
+    @staticmethod
+    def generate_polya_urn_real(num_agents, num_items, param_a):
+        """Adapted Polya-Eggenberger urn sampling model for
+        drawing correlated utility profiles"""
+
+        # (1)  start with an urn containing a single ball called "Random".
+        # (2)  For each agent, draw a ball:
+        # (3.i)   If that ball is "Random": the agent's utility profile u_i is chosen u.a.r. and add the "Random" ball back into the urn along with A copies of u_i
+        # (3.ii)  Else: the agent's utility profile is the ball and replace that ball and A copies of the ball.
+        # We can still use the problem size-independent parameterization used by Walsh (which looks to be taken from a 2006 paper in "Group Decision and Negotiation").
+
+        # Initially, the urn contains the single distinguished "random" ball
+        random_ball = "RANDOM"
+        urn = [random_ball]
+
+        # Store chosen utility profiles for each of the agents
+        utilities = []
+        for _ in xrange(num_agents):
+
+            ball = random.choice(urn)
+            if ball == random_ball:
+                # if the ball is random, choose a random utility profile
+                u = [random.random() for _ in xrange(num_items)]
+
+            else:
+                # otherwise, the ball is our agent's utility profile
+                u = copy.deepcopy(ball)
+            utilities.append(u)
+
+            # Add param_a new copies of u to the urn (possibly with some noise)
+            for _ in xrange(param_a):
+                # Fine with references, don't need copies
+                urn.append( copy.copy(u) )
+
+
+            
+        return Model(utilities, num_items, DistTypes.polya_urn_real, True)

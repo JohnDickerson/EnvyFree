@@ -46,8 +46,8 @@ def __build_envyfree_problem(p, model):
     senses = []
     rhs = []
 
-    # Each item can be allocated to at most one agent [SOS1]
-    # For each item j, \sum_i x_{ij} \leq 1
+    # Each item can be allocated to exactly one agent [SOS1]
+    # For each item j, \sum_i x_{ij} = 1
     for j in xrange(model.m):
         rows.append([ [j + i*model.m for i in xrange(model.n)],
                       [1]*model.n

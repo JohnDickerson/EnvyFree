@@ -23,6 +23,8 @@ def run(num_agents, num_items, dist_type, dup_values, obj_type):
         m = Model.generate_urand_real(num_agents, num_items, dup_values)
     elif dist_type == DistTypes.zipf_real:
         m = Model.generate_zipf_real(num_agents, num_items, 2., dup_values)
+    elif dist_type == DistTypes.polya_urn_real:
+        m = Model.generate_polya_urn_real(num_agents, num_items, 1)
     else:
         raise Exception("Distribution type {0} is not recognized.".format(dist_type))
 
