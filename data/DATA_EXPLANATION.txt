@@ -13,3 +13,7 @@ phase_transition_2.tgz:
 --> social welfare maximizing
 --> #agents 10, 15, 20
 
+phase_transition_4.tgz:
+--> DistTypes.urand_real (uniform random real [0,1])
+--> feasibility
+--> #agents 5,10

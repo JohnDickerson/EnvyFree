@@ -7,11 +7,11 @@ from matplotlib.font_manager import FontProperties
 import matplotlib.patches as patches   # For the proxy twin-axis legend entry
 
 # Raw .csv file containing data
-filename_data = "../data/out_1.csv"
+filename_data = "../data/out_ureal_feas.csv"
 
 # Maps column indices to the data they hold
 class Col:
-    num_agents, num_items, dist_type, N, feasible, build_s, solve_s = range(7)
+    num_agents, num_items, dist_type, N, obj_type, feasible, build_s, solve_s = range(8)
 
 matplotlib.rcParams['ps.useafm'] = True
 matplotlib.rcParams['pdf.use14corefonts'] = True
