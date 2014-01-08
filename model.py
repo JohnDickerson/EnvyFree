@@ -130,9 +130,11 @@ class Model:
 
 
     @staticmethod
-    def generate_polya_urn_real(num_agents, num_items, param_a):
+    def generate_polya_urn_real(num_agents, num_items, param_r, param_a, add_noise = False):
         """Adapted Polya-Eggenberger urn sampling model for
-        drawing correlated utility profiles"""
+        drawing correlated utility profiles
+        param_r: number of "RANDOM" balls in urn at start
+        param_a: number of repeat balls to add to urn at each sample"""
 
         # (1)  start with an urn containing a single ball called "Random".
         # (2)  For each agent, draw a ball:
@@ -159,10 +161,16 @@ class Model:
             utilities.append(u)
 
             # Add param_a new copies of u to the urn (possibly with some noise)
+            numpy_u = np.array(u)
             for _ in xrange(param_a):
-                # Fine with references, don't need copies
-                urn.append( copy.copy(u) )
-
-
+                
+                if add_noise:
+                    # Add u=0, stdev=noise to u, then cap utilities to min 0 and max 1
+                    noisy_u = numpy_u + np.random.normal(0, 0.01, num_items)
+                    noisy_u[noisy_u < 0] = 0
+                    noisy_u[noisy_u > 1] = 1
+                    urn.append( noisy_u.tolist() )
+                else:
+                    urn.append( numpy_u.tolist() )
             
         return Model(utilities, num_items, DistTypes.polya_urn_real, True)

@@ -24,7 +24,7 @@ def run(num_agents, num_items, dist_type, dup_values, obj_type):
     elif dist_type == DistTypes.zipf_real:
         m = Model.generate_zipf_real(num_agents, num_items, 2., dup_values)
     elif dist_type == DistTypes.polya_urn_real:
-        m = Model.generate_polya_urn_real(num_agents, num_items, 1)
+        m = Model.generate_polya_urn_real(num_agents, num_items, 2, 1)
     else:
         raise Exception("Distribution type {0} is not recognized.".format(dist_type))
 
@@ -44,7 +44,7 @@ def run(num_agents, num_items, dist_type, dup_values, obj_type):
 if __name__ == '__main__':
 
     # Distribution of valuations we want to use
-    dist_type = DistTypes.urand_real#DistTypes.zipf_real
+    dist_type = DistTypes.polya_urn_real
 
     # How to handle duplicate valuations for different items by the same agent?
     dup_values = DupValues.allowed
