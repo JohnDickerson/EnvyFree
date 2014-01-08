@@ -26,6 +26,8 @@ def run(num_agents, num_items, dist_type, dup_values, obj_type):
         m = Model.generate_zipf_real(num_agents, num_items, 2., dup_values)
     elif dist_type == DistTypes.polya_urn_real:
         m = Model.generate_polya_urn_real(num_agents, num_items, 2, 1)
+    elif dist_type == DistTypes.correlated_real:
+        m = Model.generate_correlated_real(num_agents, num_items)
     else:
         raise Exception("Distribution type {0} is not recognized.".format(dist_type))
 
@@ -63,6 +65,8 @@ def main():
     parser.add_argument("--dist-urand-real", action="store_const", const=DistTypes.urand_real, dest="dist_type")
     parser.add_argument("--dist-zipf-real", action="store_const", const=DistTypes.zipf_real, dest="dist_type")
     parser.add_argument("--dist-polya-urn-real", action="store_const", const=DistTypes.polya_urn_real, dest="dist_type")
+    parser.add_argument("--dist-correlated-real", action="store_const", const=DistTypes.correlated_real, dest="dist_type")
+
     args = parser.parse_args()
 
 

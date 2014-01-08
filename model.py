@@ -6,7 +6,7 @@ class DupValues:
     allowed, disallowed, disallowed_max = range(3)
 
 class DistTypes:
-    urand_int, urand_real, zipf_real, polya_urn_real = range(4)
+    urand_int, urand_real, zipf_real, polya_urn_real, correlated_real = range(5)
 
 class ObjType:
     feasibility, social_welfare_max = range(2)
@@ -174,3 +174,41 @@ class Model:
                     urn.append( numpy_u.tolist() )
             
         return Model(utilities, num_items, DistTypes.polya_urn_real, True)
+
+
+    @staticmethod
+    def generate_correlated_real(num_agents, num_items):
+        """Samples a base value for each item in [0.4, 0.6], and then
+        samples a value per item per agent from some normal around that
+        base value for the item, with variance propto value of item"""
+
+        # Sample means for the normal values of each item
+        # means in [0.4, 0.6], stdevs from 0.2 (for u=0.4) to 0.3 (for u=0.6)
+        min_mean = 0.4
+        max_mean = 0.6
+        min_stdev = 0.2
+        max_stdev = 0.3
+        base_means = []
+        base_stdevs = []
+        for _ in xrange(num_items):
+            mu = min_mean + (max_mean-min_mean)*random.random()
+            sigma = min_stdev + (max_stdev-min_stdev)*( 1.0-((max_mean-mu)/(max_mean-min_mean)) ) 
+            base_means.append(mu)
+            base_stdevs.append(sigma)
+        base_means=np.array(base_means)
+        base_stdevs=np.array(base_stdevs)
+        
+
+        # Store chosen utility profiles for each of the agents
+        utilities = []
+        for _ in xrange(num_agents):
+
+            # Sample from each item's intrinsic normal, truncating utilities to [0,1]
+            u = np.random.normal(base_means, base_stdevs)
+            u[u < 0] = 0
+            u[u > 1] = 1
+            
+            utilities.append(u.tolist())
+
+        return Model(utilities, num_items, DistTypes.correlated_real, True)
+
