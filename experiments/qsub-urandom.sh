@@ -22,6 +22,9 @@ cd $SCRATCH
 # Copy necessary files (all .py files) to $SCRATCH
 cp $HOME/code/EnvyFree/*.py .
 
+# Make sure we're running the right Python ...                                  
+module load python/2.7.3
+
 # Start seed value -- we increment as we use it
 set SEED = `date +%s`
 # Number of repeat random runs per parameter vector setting
