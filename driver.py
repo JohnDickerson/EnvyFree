@@ -8,6 +8,7 @@ import allocator
 import bounds
 from allocator import DoesNotExistException
 import argparse
+import random
 
 import time
 import csv
@@ -72,7 +73,7 @@ def main():
 
 
     # If a random seed was explicitly passed in, set it
-    if hasattr(args.seed):
+    if hasattr(args, "seed"):
         random.seed(args.seed)
     else:
         random.seed()
