@@ -66,9 +66,16 @@ def main():
     parser.add_argument("--dist-zipf-real", action="store_const", const=DistTypes.zipf_real, dest="dist_type")
     parser.add_argument("--dist-polya-urn-real", action="store_const", const=DistTypes.polya_urn_real, dest="dist_type")
     parser.add_argument("--dist-correlated-real", action="store_const", const=DistTypes.correlated_real, dest="dist_type")
-
+    parser.add_argument("-s", "--seed", type=long, dest="seed",
+                        help="Sets the random seed in Python")
     args = parser.parse_args()
 
+
+    # If a random seed was explicitly passed in, set it
+    if hasattr(args.seed):
+        random.seed(args.seed)
+    else:
+        random.seed()
 
     # How to handle duplicate valuations for different items by the same agent?
     dup_values = DupValues.allowed

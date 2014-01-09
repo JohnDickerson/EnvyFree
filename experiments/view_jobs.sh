@@ -1,0 +1,1 @@
+qstat -n | grep 'jpdicker'
