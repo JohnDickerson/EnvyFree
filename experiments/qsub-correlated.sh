@@ -34,7 +34,7 @@ set NUM_REPEATS = 1
 set OBJECTIVE = "--obj-feas"      
 # Utility distribution: --dist-urand-int, --dist-urand-real, --dist-zipf-real
 #                       --dist-polya-urn-real, or --dist-correlated-real
-set DISTRIBUTION = "--dist-urand-real"
+set DISTRIBUTION = "--dist-correlated-real"
 # Iterate over #agents:  range($N_MIN, $N_MAX, $N_STEP)
 #set N_MIN = 3  # set via outer script
 #set N_MAX = 10 # set via outer script 
@@ -55,7 +55,7 @@ while ( $COUNTER < $MAX )
     @ SEED++
 
     # Runtime output will be stored here
-    set OUTFILE=out_urand_$SEED.csv
+    set OUTFILE=out_corr_$SEED.csv
 
     # Run the Python script for E-F allocations (background process!)
     python driver.py --filename $OUTFILE --num_repeats $NUM_REPEATS $OBJECTIVE $DISTRIBUTION --seed $SEED -n $N_MIN $N_MAX $N_STEP -m $M_MIN $M_MAX $M_STEP  &
