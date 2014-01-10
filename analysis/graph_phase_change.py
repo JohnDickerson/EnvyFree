@@ -7,7 +7,7 @@ from matplotlib.font_manager import FontProperties
 import matplotlib.patches as patches   # For the proxy twin-axis legend entry
 
 # Raw .csv file containing data
-filename_data = "../data/_temp_out.csv_TEMP1234567.tmp"
+filename_data = "../data/big.csv"
 
 # Maps column indices to the data they hold
 class Col:
@@ -100,7 +100,7 @@ for dist_type in dist_type_list:
         try:
             ax.set_xscale('log')
         except ValueError:
-            print "Skipping log-scale for N={0:d}".format(num_agents)
+            print "Skipping log-scale for N={0:d}".format(int(num_agents))
             ax.set_xscale('linear')
 
         ax2 = ax.twinx()
@@ -122,7 +122,7 @@ for dist_type in dist_type_list:
         proxy_solve_infeas = matplotlib.patches.Rectangle((0,0), width=1, height=0.1, facecolor='DarkGreen')
 
         # Prettify the plot
-        ax.set_title("Phase change for $N={0:d}$".format(num_agents), fontdict=TITLEFONT)
+        ax.set_title("Phase change for $N={0:d}$".format(int(num_agents)), fontdict=TITLEFONT)
         ax.set_ylabel('Frac. Feasible', fontdict=YFONT)
         ax2.set_ylabel('Avg. Runtime (s)', fontdict=YFONT)
         ax.set_xlabel("$M$", fontdict=XFONT)
@@ -131,6 +131,6 @@ for dist_type in dist_type_list:
                    ["Frac. Feasible", "Solve Time (s)", "Solve Time (feas)", "Solve Time (infeas)"],
                    loc='upper right',
                    )
-        plt.savefig("phase_transition_n{0:d}_dist{1:d}.pdf".format(num_agents, dist_type), format='pdf', bbox_inches='tight')
+        plt.savefig("phase_transition_n{0:d}_dist{1:d}.pdf".format(int(num_agents), int(dist_type)), format='pdf', bbox_inches='tight')
         plt.clf()
     
