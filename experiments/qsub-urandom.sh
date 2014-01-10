@@ -55,7 +55,7 @@ while ( $COUNTER < $MAX )
     @ SEED++
 
     # Runtime output will be stored here
-    set OUTFILE=out_urand_$SEED.csv
+    set OUTFILE=out_urand_${N_MIN}_${SEED}.csv
 
     # Run the Python script for E-F allocations (background process!)
     python driver.py --filename $OUTFILE --num_repeats $NUM_REPEATS $OBJECTIVE $DISTRIBUTION --seed $SEED -n $N_MIN $N_MAX $N_STEP -m $M_MIN $M_MAX $M_STEP  &

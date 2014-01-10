@@ -1,7 +1,7 @@
 #!/bin/csh
 
 ###### Number of CPUs MUST be a multiple of 16
-#PBS -l ncpus=160
+#PBS -l ncpus=64
 #PBS -l walltime=8:00:00
 
 ###### combine stderr and stdout to one file
@@ -47,7 +47,7 @@ set M_STEP = 1
 
 # Start one big serial Python loop on each blade
 set COUNTER = 0
-set MAX = 160    # CHECK:  MAX <= number of CPUs requested
+set MAX = 64    # CHECK:  MAX <= number of CPUs requested
 while ( $COUNTER < $MAX )
 
     # Want a different seed for each of the instances
@@ -55,7 +55,7 @@ while ( $COUNTER < $MAX )
     @ SEED++
 
     # Runtime output will be stored here
-    set OUTFILE=out_corr_$SEED.csv
+    set OUTFILE=out_corr_${N_MIN}_${SEED}.csv
 
     # Run the Python script for E-F allocations (background process!)
     python driver.py --filename $OUTFILE --num_repeats $NUM_REPEATS $OBJECTIVE $DISTRIBUTION --seed $SEED -n $N_MIN $N_MAX $N_STEP -m $M_MIN $M_MAX $M_STEP  &

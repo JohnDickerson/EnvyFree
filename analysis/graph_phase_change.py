@@ -7,7 +7,7 @@ from matplotlib.font_manager import FontProperties
 import matplotlib.patches as patches   # For the proxy twin-axis legend entry
 
 # Raw .csv file containing data
-filename_data = "../data/out_ureal_feas.csv"
+filename_data = "../data/_temp_out.csv_TEMP1234567.tmp"
 
 # Maps column indices to the data they hold
 class Col:
@@ -97,7 +97,11 @@ for dist_type in dist_type_list:
 
         # Fraction feasible is in [0,1]
         plt.ylim(0.0, 1.0)
-        ax.set_xscale('log')
+        try:
+            ax.set_xscale('log')
+        except ValueError:
+            print "Skipping log-scale for N={0:d}".format(num_agents)
+            ax.set_xscale('linear')
 
         ax2 = ax.twinx()
         plot_solve = ax2.plot(num_items_list, y_solve_s,
@@ -118,7 +122,7 @@ for dist_type in dist_type_list:
         proxy_solve_infeas = matplotlib.patches.Rectangle((0,0), width=1, height=0.1, facecolor='DarkGreen')
 
         # Prettify the plot
-        ax.set_title("Phase change for $N={0}$".format(num_agents), fontdict=TITLEFONT)
+        ax.set_title("Phase change for $N={0:d}$".format(num_agents), fontdict=TITLEFONT)
         ax.set_ylabel('Frac. Feasible', fontdict=YFONT)
         ax2.set_ylabel('Avg. Runtime (s)', fontdict=YFONT)
         ax.set_xlabel("$M$", fontdict=XFONT)
@@ -127,6 +131,6 @@ for dist_type in dist_type_list:
                    ["Frac. Feasible", "Solve Time (s)", "Solve Time (feas)", "Solve Time (infeas)"],
                    loc='upper right',
                    )
-        plt.savefig("phase_transition_n{0}_dist{1}.pdf".format(num_agents, dist_type), format='pdf', bbox_inches='tight')
+        plt.savefig("phase_transition_n{0:d}_dist{1:d}.pdf".format(num_agents, dist_type), format='pdf', bbox_inches='tight')
         plt.clf()
     
