@@ -51,24 +51,32 @@ def main():
 
     parser = argparse.ArgumentParser(description='Find envy-free allocations.')
     parser.add_argument("-f", "--filename", dest="filename", required=True,
-                      metavar="FILE", help="write output to FILE")
+                      metavar="FILE", help="write comma-delimited csv output to FILE")
     parser.add_argument("-r", "--num_repeats", type=int, dest="num_repeats", default=10,
-                      help="num repeat runs per parameter setting")
+                      metavar="R", help="num repeat runs per parameter setting")
     parser.add_argument("-n", type=int, nargs=3, dest="N", default=(5,6,1),
-                      help="range(a,b,c) iterating over num agents")
+                      metavar=("N-min","N-max","stepsize"), help="range(a,b,c) iterating over num agents")
     parser.add_argument("-m", type=int, nargs=3, dest="M", default=(5,10,1),
-                      help="range(a,b,c) iterating over num items")
+                      metavar=("M-min","M-max","stepsize"), help="range(a,b,c) iterating over num items")
     parser.add_argument("--obj-feas", action="store_const", const=ObjType.feasibility, dest="obj_type",
                       help="Objective function: feasibility")
     parser.add_argument("--obj-social", action="store_const", const=ObjType.social_welfare_max, dest="obj_type",
                       help="Objective function: max social welfare")
-    parser.add_argument("--dist-urand-int", action="store_const", const=DistTypes.urand_int, dest="dist_type")
-    parser.add_argument("--dist-urand-real", action="store_const", const=DistTypes.urand_real, dest="dist_type")
-    parser.add_argument("--dist-zipf-real", action="store_const", const=DistTypes.zipf_real, dest="dist_type")
-    parser.add_argument("--dist-polya-urn-real", action="store_const", const=DistTypes.polya_urn_real, dest="dist_type")
-    parser.add_argument("--dist-correlated-real", action="store_const", const=DistTypes.correlated_real, dest="dist_type")
+    parser.add_argument("--dist-urand-int", action="store_const", const=DistTypes.urand_int, dest="dist_type",
+                        help="Utility distribution integral in {0,...,10*#Items}")
+    parser.add_argument("--dist-urand-real", action="store_const", const=DistTypes.urand_real, dest="dist_type",
+                        help="Utility distribution u.a.r. real in U[0,1]")
+    parser.add_argument("--dist-zipf-real", action="store_const", const=DistTypes.zipf_real, dest="dist_type",
+                        help="Utility distribution drawn from Zipf with alpha=2.")
+    parser.add_argument("--dist-polya-urn-real", action="store_const", const=DistTypes.polya_urn_real, dest="dist_type",
+                        help="Utility distribution drawn from augmented Polya-Eggenberger urn model.")
+    parser.add_argument("--dist-correlated-real", action="store_const", const=DistTypes.correlated_real, dest="dist_type",
+                        help="Utility distribution correlated intrinsic item value.")
     parser.add_argument("-s", "--seed", type=long, dest="seed",
                         help="Sets the random seed in Python")
+    parser.add_argument("--fathom-too-much-envy", action="store_true", dest="   ", default=False,
+                        help="Fathoms a path if #unallocated items is less than #envious agents at node")
+
     args = parser.parse_args()
 
 
