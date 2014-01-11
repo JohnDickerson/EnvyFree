@@ -39,9 +39,9 @@ def run(num_agents, num_items, prefs, dup_values):
     #    sys.exit(-1)
 
     # Compute an envy-free allocation (if it exists)
-    sol_exists, build_s, solve_s = allocator.allocate(m, prefs)
+    stats = allocator.allocate(m, prefs)
     
-    return (sol_exists, build_s, solve_s)
+    return stats
 
 
 
@@ -70,12 +70,14 @@ def main():
                         help="Utility distribution drawn from augmented Polya-Eggenberger urn model.")
     parser.add_argument("--dist-correlated-real", action="store_const", const=DistTypes.correlated_real, dest="dist_type",
                         help="Utility distribution correlated intrinsic item value.")
-    parser.add_argument("-s", "--seed", type=long, dest="seed",
+    parser.add_argument("-s", "--seed", type=long, dest="seed", default=0,
                         help="Sets the random seed in Python")
     parser.add_argument("--fathom-too-much-envy", action="store_true", dest="branch_fathom_too_much_envy", default=False,
                         help="Fathoms a path if #unallocated items is less than #envious agents at node")
     parser.add_argument("--branch-avg-value", action="store_true", dest="branch_avg_value", default=False,
                         help="Prioritizes branching based on average item value")
+    parser.add_argument("-v", "--verbose", action="store_true", dest="verbose", default="False",
+                        help="Prints a bunch of stats to stdout as we solve models.")
     args = parser.parse_args()
 
 
@@ -112,7 +114,9 @@ def main():
                 for _ in xrange(args.num_repeats):
 
                     # Generate an instance and solve it; returns runtime of IP write+solve
-                    sol_exists, build_s, solve_s = run(num_agents, num_items, args, dup_values)
+                    stats = run(num_agents, num_items, args, dup_values)
+
+                    sol_exists, build_s, solve_s = stats['ModelFeasible'], stats['ModelBuildTime'], stats['ModelSolveTime']
 
                     # Maintain stats on the runs
                     sol_exists_accum += 1 if sol_exists else 0
@@ -129,20 +133,26 @@ def main():
 
                     # If we're recording ALL data, write details for this one run
                     if write_all:
-                        writer.writerow([num_agents, num_items, args.dist_type, args.num_repeats, args.obj_type, args.branch_fathom_too_much_envy, args.branch_avg_value, sol_exists, build_s, solve_s])
+                        writer.writerow([args.seed, 
+                                         num_agents, num_items, 
+                                         args.dist_type, args.num_repeats, args.obj_type, 
+                                         args.branch_fathom_too_much_envy, stats['MyTooMuchEnvyBranch'],
+                                         args.branch_avg_value, stats['MyBranchOnAvgItemValue'],
+                                         sol_exists, stats['MIPNodeCount'], build_s, solve_s])
                         csvfile.flush()
 
                 # Report stats over all N runs, both to stdout and to out.csv
                 build_s_avg = build_s_accum / args.num_repeats
                 solve_s_avg = solve_s_accum / args.num_repeats
 
-                print "Build Avg: {0:3f}, Min: {1:3f}, Max: {2:3f}".format(build_s_avg, build_s_min, build_s_max)
-                print "Solve Avg: {0:3f}, Min: {1:3f}, Max: {2:3f}".format(solve_s_avg, solve_s_min, solve_s_max)
-                print "N={0}, M={1}, fraction feasible: {2} / {3}".format(num_agents, num_items, sol_exists_accum, args.num_repeats)
+                if args.verbose == True:
+                    print "Build Avg: {0:3f}, Min: {1:3f}, Max: {2:3f}".format(build_s_avg, build_s_min, build_s_max)
+                    print "Solve Avg: {0:3f}, Min: {1:3f}, Max: {2:3f}".format(solve_s_avg, solve_s_min, solve_s_max)
+                    print "N={0}, M={1}, fraction feasible: {2} / {3}".format(num_agents, num_items, sol_exists_accum, args.num_repeats)
 
                 # If we're only writing aggregate data, write that now
                 if not write_all:
-                    writer.writerow([num_agents, num_items, 
+                    writer.writerow([args.seed, num_agents, num_items, 
                                      args.dist_type, args.num_repeats, args.obj_type, 
                                      args.branch_fathom_too_much_envy,
                                      args.branch_avg_value,

@@ -3,7 +3,8 @@ from cplex.exceptions import CplexError
 from model import ObjType
 import time
 import sys
-from ef_callbacks import MyTooMuchEnvyBranch, MyBranchOnAvgItemValue
+from ef_callbacks import MyTooMuchEnvyBranch, MyBranchOnAvgItemValue, MyMIPInfo, MyTooMuchEnvyAndBranchOnAvgItemValue
+
 
 class DoesNotExistException(Exception):
     pass
@@ -15,16 +16,6 @@ def __flatten(list2d):
 def __build_envyfree_problem(p, model, prefs):
    
     start = time.time()
-
-    # Register any special branching rules
-    if prefs.branch_fathom_too_much_envy:
-        my_too_much_envy = p.register_callback(MyTooMuchEnvyBranch)
-        my_too_much_envy.times_called = 0
-    if prefs.branch_avg_value:
-        my_branch_avg_item = p.register_callback(MyBranchOnAvgItemValue)
-        my_branch_avg_item.times_called = 0
-    
-    
     
     # Set objective function
     if prefs.obj_type == ObjType.social_welfare_max:
@@ -96,22 +87,71 @@ def __build_envyfree_problem(p, model, prefs):
                              )
 
     stop = time.time()
+
     return stop-start
 
 
 def allocate(model, prefs):
 
     try:
-        # Build the envy-free IP
+        # Record any runtime, build statistics from solving the model
+        stats = {'MyTooMuchEnvyBranch':0, 'MyBranchOnAvgItemValue':0, 'MyBranchSOS1Envy':0}
+
+        # Keep CPLEX quiet, if requested
         p = cplex.Cplex()
         p.set_results_stream(None)
+        if prefs.verbose == False:
+            p.parameters.mip.display.set(0)
+
+        # Build the envy-free IP
         build_s = __build_envyfree_problem(p, model, prefs)
+        stats['ModelBuildTime'] = build_s
+
+        # Register any special branching rules
+        # Can have (TooMuchEnvy fathoming + at most 1 other rule)
+        if prefs.branch_fathom_too_much_envy:
+            if prefs.branch_avg_value:
+                my_too_much_envy_and_branch_avg_item = p.register_callback(MyTooMuchEnvyAndBranchOnAvgItemValue)
+                my_too_much_envy_and_branch_avg_item.times_too_much_envy_used = 0
+                my_too_much_envy_and_branch_avg_item.times_branch_on_avg_item_used = 0
+            elif prefs.branch_sos1_envy:
+                pass
+            else:      
+                my_too_much_envy = p.register_callback(MyTooMuchEnvyBranch)
+                my_too_much_envy.times_used = 0
+        elif prefs.branch_avg_value:
+            my_branch_avg_item = p.register_callback(MyBranchOnAvgItemValue)
+            my_branch_avg_item.times_used = 0
+        elif prefs.branch_sos1_envy:
+            pass
+                
+        my_mip_info = p.register_callback(MyMIPInfo)
+        my_mip_info.num_nodes = 0 
+
 
         # Solve the IP
         start = time.time()
         p.solve()
         stop = time.time()
         solve_s = stop - start
+        stats['ModelSolveTime'] = solve_s
+        stats['MIPNodeCount'] = my_mip_info.num_nodes
+
+
+        # Record stats from the run
+        if prefs.branch_fathom_too_much_envy:
+            if prefs.branch_avg_value:
+                stats['MyTooMuchEnvyBranch'] = my_too_much_envy_and_branch_avg_item.times_too_much_envy_used
+                stats['MyBranchOnAvgItemValue'] = my_too_much_envy_and_branch_avg_item.times_branch_on_avg_item_used
+            elif prefs.branch_sos1_envy:
+                pass
+            else:
+                stats['MyTooMuchEnvyBranch'] = my_too_much_envy.times_too_much_envy_used
+        elif prefs.branch_avg_value:
+            stats['MyBranchOnAvgItemValue'] = my_branch_avg_item.times_used
+        elif prefs.branch_sos1_envy:
+            pass
+
 
         # Was there a solution? (not guaranteed for envy-free)
         feasible = True
@@ -119,13 +159,16 @@ def allocate(model, prefs):
         if sol.get_status() == 3 or sol.get_status() == 103:
             feasible = False
         else:
-            print "{0:d}:  {1}   ||   Objective value: {2:2f}".format(
-                sol.get_status(), 
-                sol.status[sol.get_status()], 
-                sol.get_objective_value())
+            if prefs.verbose == True:
+                print "{0:d}:  {1}   ||   Objective value: {2:2f}".format(
+                    sol.get_status(), 
+                    sol.status[sol.get_status()], 
+                    sol.get_objective_value())
+
+        stats['ModelFeasible'] = feasible
 
         # Keep stats on feasibility, time
-        return (feasible, build_s, solve_s)
+        return stats
         
     except CplexError, ex:
         print ex
