@@ -2,7 +2,7 @@ import cplex
 from cplex.callbacks import BranchCallback
 
 
-class MyTooMuchEnvyCut(BranchCallback):
+class MyTooMuchEnvyBranch(BranchCallback):
 
     """ Fathoms the current path if the number of unallocated items is less than
     the number of remaining envious agents (always infeasible in this case)
@@ -14,7 +14,7 @@ class MyTooMuchEnvyCut(BranchCallback):
         num_envious_agents = 0 
         num_remaining_items = 0
 
-
+        
         # Don't explore this subtree if too few items to create E-F allocation
         # (Calling neither prune() nor make_branch() --> CPLEX branches normally)
         if num_envious_agents > num_remaining_items:

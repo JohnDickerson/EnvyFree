@@ -16,23 +16,21 @@ import sys
 
 current_ms_time = lambda: int(round(time.time() * 1000))
 
-def run(num_agents, num_items, dist_type, dup_values, obj_type):
+def run(num_agents, num_items, prefs, dup_values):
 
     # Randomly generate some data for N agents and M items
-    if dist_type == DistTypes.urand_int:
+    if prefs.dist_type == DistTypes.urand_int:
         m = Model.generate_urand_int(num_agents, num_items, dup_values)
-    elif dist_type == DistTypes.urand_real:
+    elif prefs.dist_type == DistTypes.urand_real:
         m = Model.generate_urand_real(num_agents, num_items, dup_values)
-    elif dist_type == DistTypes.zipf_real:
+    elif prefs.dist_type == DistTypes.zipf_real:
         m = Model.generate_zipf_real(num_agents, num_items, 2., dup_values)
-    elif dist_type == DistTypes.polya_urn_real:
+    elif prefs.dist_type == DistTypes.polya_urn_real:
         m = Model.generate_polya_urn_real(num_agents, num_items, 2, 1)
-    elif dist_type == DistTypes.correlated_real:
+    elif prefs.dist_type == DistTypes.correlated_real:
         m = Model.generate_correlated_real(num_agents, num_items)
     else:
         raise Exception("Distribution type {0} is not recognized.".format(dist_type))
-
-    m.obj_type = obj_type
 
     # Do our bounding at the root to check for naive infeasibility
     #is_possibly_feasible, bounding_s = bounds.max_contested_feasible(m)
@@ -41,7 +39,7 @@ def run(num_agents, num_items, dist_type, dup_values, obj_type):
     #    sys.exit(-1)
 
     # Compute an envy-free allocation (if it exists)
-    sol_exists, build_s, solve_s = allocator.allocate(m)
+    sol_exists, build_s, solve_s = allocator.allocate(m, prefs)
     
     return (sol_exists, build_s, solve_s)
 
@@ -74,9 +72,10 @@ def main():
                         help="Utility distribution correlated intrinsic item value.")
     parser.add_argument("-s", "--seed", type=long, dest="seed",
                         help="Sets the random seed in Python")
-    parser.add_argument("--fathom-too-much-envy", action="store_true", dest="   ", default=False,
+    parser.add_argument("--fathom-too-much-envy", action="store_true", dest="branch_fathom_too_much_envy", default=False,
                         help="Fathoms a path if #unallocated items is less than #envious agents at node")
-
+    parser.add_argument("--branch-avg-value", action="store_true", dest="branch_avg_value", default=False,
+                        help="Prioritizes branching based on average item value")
     args = parser.parse_args()
 
 
@@ -113,7 +112,7 @@ def main():
                 for _ in xrange(args.num_repeats):
 
                     # Generate an instance and solve it; returns runtime of IP write+solve
-                    sol_exists, build_s, solve_s = run(num_agents, num_items, args.dist_type, dup_values, args.obj_type)
+                    sol_exists, build_s, solve_s = run(num_agents, num_items, args, dup_values)
 
                     # Maintain stats on the runs
                     sol_exists_accum += 1 if sol_exists else 0
@@ -130,7 +129,7 @@ def main():
 
                     # If we're recording ALL data, write details for this one run
                     if write_all:
-                        writer.writerow([num_agents, num_items, args.dist_type, args.num_repeats, args.obj_type, sol_exists, build_s, solve_s])
+                        writer.writerow([num_agents, num_items, args.dist_type, args.num_repeats, args.obj_type, args.branch_fathom_too_much_envy, args.branch_avg_value, sol_exists, build_s, solve_s])
                         csvfile.flush()
 
                 # Report stats over all N runs, both to stdout and to out.csv
@@ -144,7 +143,9 @@ def main():
                 # If we're only writing aggregate data, write that now
                 if not write_all:
                     writer.writerow([num_agents, num_items, 
-                                     args.dist_type, args.num_repeats, args.obj_type,
+                                     args.dist_type, args.num_repeats, args.obj_type, 
+                                     args.branch_fathom_too_much_envy,
+                                     args.branch_avg_value,
                                      sol_exists_accum, 
                                      build_s_avg, build_s_min, build_s_max,
                                      solve_s_avg, solve_s_min, solve_s_max,

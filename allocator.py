@@ -3,6 +3,7 @@ from cplex.exceptions import CplexError
 from model import ObjType
 import time
 import sys
+from ef_callbacks import MyTooMuchEnvyBranch, MyBranchOnAvgItemValue
 
 class DoesNotExistException(Exception):
     pass
@@ -11,23 +12,33 @@ def __flatten(list2d):
     """ Flattens a 2d list """
     return [val for val_list in list2d for val in val_list]
 
-def __build_envyfree_problem(p, model):
+def __build_envyfree_problem(p, model, prefs):
    
     start = time.time()
 
+    # Register any special branching rules
+    if prefs.branch_fathom_too_much_envy:
+        my_too_much_envy = p.register_callback(MyTooMuchEnvyBranch)
+        my_too_much_envy.times_called = 0
+    if prefs.branch_avg_value:
+        my_branch_avg_item = p.register_callback(MyBranchOnAvgItemValue)
+        my_branch_avg_item.times_called = 0
+    
+    
+    
     # Set objective function
-    if model.obj_type == ObjType.social_welfare_max:
+    if prefs.obj_type == ObjType.social_welfare_max:
         # Objective: max \sum_i \sum_j v_{ij} x_{ij}
         p.objective.set_sense(p.objective.sense.maximize)
         obj = __flatten(model.u)
-    elif model.obj_type == ObjType.feasibility:
+    elif prefs.obj_type == ObjType.feasibility:
         # Objective: nothing [just feasibility]
         obj = [0]*len(__flatten(model.u))
     else:
         print "Could not determine objective function type for model."
         sys.exit(-1)
 
-
+    
     # One binary variable per item per agent
     lb = [0]*len(obj)
     ub = [1]*len(obj)
@@ -88,13 +99,13 @@ def __build_envyfree_problem(p, model):
     return stop-start
 
 
-def allocate(model):
+def allocate(model, prefs):
 
     try:
         # Build the envy-free IP
         p = cplex.Cplex()
         p.set_results_stream(None)
-        build_s = __build_envyfree_problem(p, model)
+        build_s = __build_envyfree_problem(p, model, prefs)
 
         # Solve the IP
         start = time.time()
