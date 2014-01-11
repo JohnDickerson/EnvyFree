@@ -76,7 +76,9 @@ def main():
                         help="Fathoms a path if #unallocated items is less than #envious agents at node")
     parser.add_argument("--branch-avg-value", action="store_true", dest="branch_avg_value", default=False,
                         help="Prioritizes branching based on average item value")
-    parser.add_argument("-v", "--verbose", action="store_true", dest="verbose", default="False",
+    parser.add_argument("--branch-sos1-envy", action="store_true", dest="branch_sos1_envy", default=False,
+                        help="SOS1 branch to most envious agent")
+    parser.add_argument("-v", "--verbose", action="store_true", dest="verbose", default=False,
                         help="Prints a bunch of stats to stdout as we solve models.")
     args = parser.parse_args()
 
@@ -138,6 +140,7 @@ def main():
                                          args.dist_type, args.num_repeats, args.obj_type, 
                                          args.branch_fathom_too_much_envy, stats['MyTooMuchEnvyBranch'],
                                          args.branch_avg_value, stats['MyBranchOnAvgItemValue'],
+                                         args.branch_sos1_envy, stats['MyBranchSOS1Envy'],
                                          sol_exists, stats['MIPNodeCount'], build_s, solve_s])
                         csvfile.flush()
 

@@ -3,7 +3,7 @@ from cplex.exceptions import CplexError
 from model import ObjType
 import time
 import sys
-from ef_callbacks import MyTooMuchEnvyBranch, MyBranchOnAvgItemValue, MyMIPInfo, MyTooMuchEnvyAndBranchOnAvgItemValue
+from ef_callbacks import MyTooMuchEnvyBranch, MyBranchOnAvgItemValue, MyMIPInfo, MyTooMuchEnvyAndBranchOnAvgItemValue, MyTooMuchEnvyAndBranchSOS1Envy
 
 
 class DoesNotExistException(Exception):
@@ -91,6 +91,8 @@ def __build_envyfree_problem(p, model, prefs):
     return stop-start
 
 
+
+
 def allocate(model, prefs):
 
     try:
@@ -103,32 +105,42 @@ def allocate(model, prefs):
         if prefs.verbose == False:
             p.parameters.mip.display.set(0)
 
+        #
         # Build the envy-free IP
         build_s = __build_envyfree_problem(p, model, prefs)
         stats['ModelBuildTime'] = build_s
 
         # Register any special branching rules
-        # Can have (TooMuchEnvy fathoming + at most 1 other rule)
+        # Can have (TooMuchEnvy fathoming + at most 1 other branching rule)
         if prefs.branch_fathom_too_much_envy:
             if prefs.branch_avg_value:
                 my_too_much_envy_and_branch_avg_item = p.register_callback(MyTooMuchEnvyAndBranchOnAvgItemValue)
                 my_too_much_envy_and_branch_avg_item.times_too_much_envy_used = 0
                 my_too_much_envy_and_branch_avg_item.times_branch_on_avg_item_used = 0
+                my_too_much_envy_and_branch_avg_item.model = model
             elif prefs.branch_sos1_envy:
-                pass
+                my_too_much_envy_and_branch_sos1_envy = p.register_callback(MyTooMuchEnvyAndBranchSOS1Envy)
+                my_too_much_envy_and_branch_sos1_envy.times_too_much_envy_used = 0
+                my_too_much_envy_and_branch_sos1_envy.times_sos1_envy_used = 0
+                my_too_much_envy_and_branch_sos1_envy.model = model
             else:      
                 my_too_much_envy = p.register_callback(MyTooMuchEnvyBranch)
                 my_too_much_envy.times_used = 0
+                my_too_much_envy.model = model
         elif prefs.branch_avg_value:
             my_branch_avg_item = p.register_callback(MyBranchOnAvgItemValue)
             my_branch_avg_item.times_used = 0
+            my_branch_avg_items.model = model
         elif prefs.branch_sos1_envy:
-            pass
-                
+            my_branch_sos1_envy = p.register_callback(MyBranchSOS1Envy)
+            my_branch_sos1_envy.times_used = 0
+            my_branch_sos1_envy.model = model
+
+        # Keep track of B&C tree information via MIPInfoCallback
         my_mip_info = p.register_callback(MyMIPInfo)
         my_mip_info.num_nodes = 0 
 
-
+        #
         # Solve the IP
         start = time.time()
         p.solve()
@@ -137,20 +149,21 @@ def allocate(model, prefs):
         stats['ModelSolveTime'] = solve_s
         stats['MIPNodeCount'] = my_mip_info.num_nodes
 
-
+        #
         # Record stats from the run
         if prefs.branch_fathom_too_much_envy:
             if prefs.branch_avg_value:
                 stats['MyTooMuchEnvyBranch'] = my_too_much_envy_and_branch_avg_item.times_too_much_envy_used
                 stats['MyBranchOnAvgItemValue'] = my_too_much_envy_and_branch_avg_item.times_branch_on_avg_item_used
             elif prefs.branch_sos1_envy:
-                pass
+                stats['MyTooMuchEnvyBranch'] = my_too_much_envy_and_branch_sos1_envy.times_too_much_envy_used
+                stats['MyBranchSOS1Envy'] = my_too_much_envy_and_branch_sos1_envy.times_sos1_envy_used
             else:
-                stats['MyTooMuchEnvyBranch'] = my_too_much_envy.times_too_much_envy_used
+                stats['MyTooMuchEnvyBranch'] = my_too_much_envy.times_used
         elif prefs.branch_avg_value:
             stats['MyBranchOnAvgItemValue'] = my_branch_avg_item.times_used
         elif prefs.branch_sos1_envy:
-            pass
+            stats['MyBranchSOS1Envy'] = my_branch_sos1_envy.times_used
 
 
         # Was there a solution? (not guaranteed for envy-free)
