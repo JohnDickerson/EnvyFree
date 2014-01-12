@@ -55,7 +55,7 @@ while ( $COUNTER < $MAX )
     @ SEED++
 
     # Runtime output will be stored here
-    set OUTBASE=out${OBJECTIVE}_${N_MIN}_${SEED}
+    set OUTBASE=out${OBJECTIVE}_${DISTRIBUTION}_${N_MIN}_${SEED}
 
     # Run the Python script for E-F allocations (background process!)
     # Run multiple times with same seed: {fathom, no fathom} x {priority, no priority} x {max value branching, no max value branching}
