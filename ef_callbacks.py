@@ -1,6 +1,6 @@
 import cplex
 from cplex.callbacks import BranchCallback, MIPInfoCallback
-
+import sys
 
 class MyTooMuchEnvyBranch(BranchCallback):
 
@@ -76,12 +76,14 @@ class MyTooMuchEnvyBranch(BranchCallback):
 
 class MyBranchOnAvgItemValue(BranchCallback):
 
-    """ Branches based on average item value (
+    """ Branches based on average item value (pick the item with the highest
+    average value that isn't allocated, then branch on giving it to the agent
+    that currently wants it the most.
     """    
     def __call__(self):
         
         self.times_used += 1
-        choose_branch(self)
+        MyBranchOnAvgItemValue.choose_branch(self)
 
     @staticmethod
     def choose_branch(branch):
@@ -91,11 +93,41 @@ class MyBranchOnAvgItemValue(BranchCallback):
             return
 
         objval = branch.get_objective_value()
+        x = branch.get_values()
+
+        # Get the highest average value remaining unallocated item, and branch
+        # on giving that item to the agent who values it the most
+        # Todo: drop from O(nm) to something lower via priority queues (maybe not worth it)
+        #       or if we're SOS1ing items maybe check for inactive constraints
+        max_avg_item_val = -sys.maxint - 1
+        branch_var = -1
+        for item_j in xrange(branch.model.m):
+            
+            # Figure out if item_j is allocated; if it's not allocated,
+            # determine which agent_i wants it the most
+            allocated = False
+            max_agent_val = -sys.maxint - 1
+            max_agent_cand = -1
+            for agent_i in xrange(branch.model.n):            
+                if x[agent_i * branch.model.n + item_j] != 0:
+                    allocated = True
+                    break
+                elif branch.model.u[agent_i][item_j] > max_agent_val:
+                    max_agent_val = branch.model.u[agent_i][item_j]
+                    max_agent_cand = agent_i
+
+            # Branch candidate!  Is this the highest avg value unallocated item?
+            if not allocated:
+                if branch.model.m_avg_vals[item_j] > max_avg_item_val:
+                    branch_var = max_agent_cand*branch.model.m + item_j
+                    max_avg_item_val = branch.model.m_avg_vals[item_j]
+
 
         # Branching on binary, so we force a var=1 branch with lower bound "L"=1,
         # and we force a var=0 branch with upper bound "U"=0
-        #branch.make_branch(objval, variables = [(var, "L", 1)])
-        #branch.make_branch(objval, variables = [(var, "U", 0)])
+        if branch_var >= 0:
+            branch.make_branch(objval, variables = [(branch_var, "L", 1)])
+            branch.make_branch(objval, variables = [(branch_var, "U", 0)])
 
 
 class MyBranchSOS1Envy(BranchCallback):
@@ -108,8 +140,13 @@ class MyBranchSOS1Envy(BranchCallback):
 
     @staticmethod
     def choose_branch(branch):
-        pass
 
+        br_type = branch.get_branch_type()
+        if br_type == branch.branch_type.SOS1 or br_type == branch.branch_type.SOS2:
+            return
+
+        # Do some stuff here someday...
+        return
 
 
 class MyTooMuchEnvyAndBranchOnAvgItemValue(BranchCallback):

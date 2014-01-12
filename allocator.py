@@ -130,7 +130,7 @@ def allocate(model, prefs):
         elif prefs.branch_avg_value:
             my_branch_avg_item = p.register_callback(MyBranchOnAvgItemValue)
             my_branch_avg_item.times_used = 0
-            my_branch_avg_items.model = model
+            my_branch_avg_item.model = model
         elif prefs.branch_sos1_envy:
             my_branch_sos1_envy = p.register_callback(MyBranchSOS1Envy)
             my_branch_sos1_envy.times_used = 0

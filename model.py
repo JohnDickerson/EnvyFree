@@ -19,6 +19,14 @@ class Model:
         self.n = len(utilities)
         self.u = utilities
         self.m = num_items
+        
+        # Precompute statistics for branching heuristics
+        self.m_avg_vals = [None]*self.m
+        for j in xrange(self.m):
+            item_avg = 0
+            for u_list in self.u:
+                item_avg += u_list[j]
+            self.m_avg_vals[j] = item_avg / self.m
 
         # properties/settings
         self.dist_type = dist_type
