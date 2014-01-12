@@ -153,7 +153,7 @@ def allocate(model, prefs):
                 # Set priorities for each of the binary variables for this item
                 for agent_idx in xrange(model.n):
                     # order must be a list of triples (variable, priority, direction)
-                    bin_var_idx = (agent_idx * model.n) + item_idx
+                    bin_var_idx = (agent_idx * model.m) + item_idx
                     item_priorities.append( (bin_var_idx, priority, p.order.branch_direction.up) )
             
             p.order.set(item_priorities)
