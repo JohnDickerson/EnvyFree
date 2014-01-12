@@ -142,7 +142,7 @@ def allocate(model, prefs):
 
         # Possibly prioritize variables based on their average value (value \propto priority)
         if prefs.prioritize_avg_value:
-
+            
             item_positions = sorted(range(model.m), key=lambda k: model.m_avg_vals[k])
             item_priorities = []
             for item_idx, position in enumerate(item_positions):
@@ -190,7 +190,7 @@ def allocate(model, prefs):
         if sol.get_status() == 3 or sol.get_status() == 103:
             feasible = False
         else:
-            if prefs.verbose == True:
+            if prefs.verbose:
                 print "{0:d}:  {1}   ||   Objective value: {2:2f}".format(
                     sol.get_status(), 
                     sol.status[sol.get_status()], 
