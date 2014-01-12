@@ -20,7 +20,7 @@ ja $HOME/ja.$PBS_JOBID
 cd $SCRATCH
 
 # Copy necessary files (all .py files) to $SCRATCH
-cp $HOME/code/EnvyFree/*.py .
+cp $HOME/code/EnvyFree/trunk/*.py .
 
 # Make sure we're running the right Python ...
 source /usr/share/modules/init/csh

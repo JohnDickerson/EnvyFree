@@ -7,11 +7,26 @@ from matplotlib.font_manager import FontProperties
 import matplotlib.patches as patches   # For the proxy twin-axis legend entry
 
 # Raw .csv file containing data
-filename_data = "../data/big_social_welfare.csv"
+filename_data = "../data/big_st_social_welfare.csv"
 
 # Maps column indices to the data they hold
 class Col:
-    num_agents, num_items, dist_type, N, obj_type, feasible, build_s, solve_s = range(8)
+    #num_agents, num_items, dist_type, N, obj_type, feasible, build_s, solve_s = range(8)
+    (seed, 
+     num_threads, 
+     num_agents, 
+     num_items, 
+     dist_type, 
+     N, 
+     obj_type, 
+     fathom_too_much_envy_on, fathom_too_much_envy_ct,
+     branch_avg_value_on, branch_avg_value_ct,
+     branch_sos1_envy_on, branch_sos1_envy_ct,
+     prioritize_avg_value_on,
+     feasible, 
+     mip_nod_count,
+     build_s, 
+     solve_s) = range(18)
 
 matplotlib.rcParams['ps.useafm'] = True
 matplotlib.rcParams['pdf.use14corefonts'] = True
@@ -36,7 +51,12 @@ print 'Loading data from ' + filename_data
 data = np.genfromtxt(filename_data, 
                     delimiter=',', 
                     skiprows=0,
-                    converters={Col.feasible: get_boolean_from_string}, 
+                    converters={Col.feasible: get_boolean_from_string,
+                                Col.fathom_too_much_envy_on: get_boolean_from_string,
+                                Col.branch_avg_value_on: get_boolean_from_string,
+                                Col.branch_sos1_envy_on: get_boolean_from_string,
+                                Col.prioritize_avg_value_on: get_boolean_from_string,
+                                }, 
                     )
 print 'Loaded ' + str(len(data)) + ' rows of data.'
 
