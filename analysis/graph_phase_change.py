@@ -7,7 +7,7 @@ from matplotlib.font_manager import FontProperties
 import matplotlib.patches as patches   # For the proxy twin-axis legend entry
 
 # Raw .csv file containing data
-filename_data = "../data/big.csv"
+filename_data = "../data/big_social_welfare.csv"
 
 # Maps column indices to the data they hold
 class Col:
@@ -109,16 +109,16 @@ for dist_type in dist_type_list:
                               )
         proxy_solve = matplotlib.patches.Rectangle((0,0), width=1, height=0.1, facecolor='black')
 
-        plot_solve_feas = ax2.plot(num_items_list, y_solve_s_feas,
-                              color='DarkBlue',
-                              #linestyle='-^',
-                              )
+        #plot_solve_feas = ax2.plot(num_items_list, y_solve_s_feas,
+        #                      color='DarkBlue',
+        #                      #linestyle='-^',
+        #                      )
         proxy_solve_feas = matplotlib.patches.Rectangle((0,0), width=1, height=0.1, facecolor='DarkBlue')
 
-        plot_solve_infeas = ax2.plot(num_items_list, y_solve_s_infeas,
-                              color='DarkGreen',
-                              #linestyle='-o',
-                              )
+        #plot_solve_infeas = ax2.plot(num_items_list, y_solve_s_infeas,
+        #                      color='DarkGreen',
+        #                      #linestyle='-o',
+        #                      )
         proxy_solve_infeas = matplotlib.patches.Rectangle((0,0), width=1, height=0.1, facecolor='DarkGreen')
 
         # Prettify the plot

@@ -82,6 +82,9 @@ def main():
                         help="Sets CPLEX branching priority based on average item value.")
     parser.add_argument("-v", "--verbose", action="store_true", dest="verbose", default=False,
                         help="Prints a bunch of stats to stdout as we solve models.")
+    parser.add_argument("-t", "--num-threads", type=int, default=1, dest="num_threads",
+                        help="Sets the number of threads used by CPLEX.")
+                      
     args = parser.parse_args()
 
 
@@ -137,7 +140,7 @@ def main():
 
                     # If we're recording ALL data, write details for this one run
                     if write_all:
-                        writer.writerow([args.seed, 
+                        writer.writerow([args.seed, args.num_threads,
                                          num_agents, num_items, 
                                          args.dist_type, args.num_repeats, args.obj_type, 
                                          args.branch_fathom_too_much_envy, stats['MyTooMuchEnvyBranch'],

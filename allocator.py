@@ -105,6 +105,8 @@ def allocate(model, prefs):
         if prefs.verbose == False:
             p.parameters.mip.display.set(0)
 
+        p.parameters.threads.set(prefs.num_threads)
+
         #
         # Build the envy-free IP
         build_s = __build_envyfree_problem(p, model, prefs)
