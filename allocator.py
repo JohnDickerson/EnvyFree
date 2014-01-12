@@ -148,8 +148,11 @@ def allocate(model, prefs):
             for item_idx, position in enumerate(item_positions):
                 # Priority: lowest is 1 (M - last in sorted list), highest is M (M - first=0)
                 priority = model.m - position
-                # order must be a list of triples (variable, priority, direction)
-                item_priorities.append( (item_idx, priority, p.order.branch_direction.up) )
+                # Set priorities for each of the binary variables for this item
+                for agent_idx in xrange(model.n):
+                    # order must be a list of triples (variable, priority, direction)
+                    bin_var_idx = (agent_idx * model.n) + item_idx
+                    item_priorities.append( (bin_var_idx, priority, p.order.branch_direction.up) )
             
             p.order.set(item_priorities)
 
