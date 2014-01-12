@@ -75,9 +75,11 @@ def main():
     parser.add_argument("--fathom-too-much-envy", action="store_true", dest="branch_fathom_too_much_envy", default=False,
                         help="Fathoms a path if #unallocated items is less than #envious agents at node")
     parser.add_argument("--branch-avg-value", action="store_true", dest="branch_avg_value", default=False,
-                        help="Prioritizes branching based on average item value")
+                        help="Branching based on average item value and max agent value")
     parser.add_argument("--branch-sos1-envy", action="store_true", dest="branch_sos1_envy", default=False,
-                        help="SOS1 branch to most envious agent")
+                        help="SOS1 branch to most envious agent [NOT IMPLEMENTED]")
+    parser.add_argument("--prioritize-avg-value", action="store_true", dest="prioritize_avg_value", default=False,
+                        help="Sets CPLEX branching priority based on average item value.")
     parser.add_argument("-v", "--verbose", action="store_true", dest="verbose", default=False,
                         help="Prints a bunch of stats to stdout as we solve models.")
     args = parser.parse_args()
@@ -141,6 +143,7 @@ def main():
                                          args.branch_fathom_too_much_envy, stats['MyTooMuchEnvyBranch'],
                                          args.branch_avg_value, stats['MyBranchOnAvgItemValue'],
                                          args.branch_sos1_envy, stats['MyBranchSOS1Envy'],
+                                         args.prioritize_avg_value,
                                          sol_exists, stats['MIPNodeCount'], build_s, solve_s])
                         csvfile.flush()
 

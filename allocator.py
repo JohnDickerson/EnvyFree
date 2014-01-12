@@ -140,6 +140,21 @@ def allocate(model, prefs):
         my_mip_info = p.register_callback(MyMIPInfo)
         my_mip_info.num_nodes = 0 
 
+        # Possibly prioritize variables based on their average value (value \propto priority)
+        if prefs.prioritize_avg_value:
+
+            item_positions = sorted(range(model.m), key=lambda k: model.m_avg_vals[k])
+            item_priorities = []
+            for item_idx, position in enumerate(item_positions):
+                # Priority: lowest is 1 (M - last in sorted list), highest is M (M - first=0)
+                priority = model.m - position
+                # order must be a list of triples (variable, priority, direction)
+                item_priorities.append( (item_idx, priority, p.order.branch_direction.up) )
+            
+            p.order.set(item_priorities)
+
+
+            
         #
         # Solve the IP
         start = time.time()

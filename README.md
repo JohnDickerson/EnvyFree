@@ -1,7 +1,7 @@
 EnvyFree
 ========
 
-Computes envy-free allocations of items to agents.
+Computes envy-free allocations of items to agents.  Run `python driver.py --help` for a list of optional arguments.
 
 
 External Dependencies
