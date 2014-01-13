@@ -5,34 +5,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.font_manager import FontProperties
 import matplotlib.patches as patches   # For the proxy twin-axis legend entry
+from data_utils import Col, IOUtil
 
 # Raw .csv file containing data
-#filename_data = "../data/big_st_social_welfare.csv"
-filename_data = "../data/comp_full.csv"
+filename_data = "../data/big_st_social_welfare.csv"
 
 # Include two extra lines, for solve time (feasible) and solve time (infeasible)?
 plot_all_lines = True
-
-# Maps column indices to the data they hold
-class Col:
-    (seed, 
-     num_threads, 
-     num_agents, 
-     num_items, 
-     dist_type, 
-     N, 
-     obj_type, 
-     fathom_too_much_envy_on, fathom_too_much_envy_ct,
-     branch_avg_value_on, branch_avg_value_ct,
-     branch_sos1_envy_on, branch_sos1_envy_ct,
-     prioritize_avg_value_on,
-     feasible, 
-     mip_node_count,
-     build_s, 
-     solve_s) = range(18)
-
-obj_type_map = {0: "Existence", 1: "Social Welfare Max"}
-dist_type_map = {1: "U[0,1]", 4: "Correlated"}
 
 matplotlib.rcParams['ps.useafm'] = True
 matplotlib.rcParams['pdf.use14corefonts'] = True
@@ -43,28 +22,9 @@ YFONT={'fontsize':24}
 TITLEFONT={'fontsize':24}
 TINYFONT={'fontsize':6}
 
-# Converts "True" or "False" to 1 or 0 integral, respectively
-def get_boolean_from_string(s):
-    s.strip
-    if s.upper() == "TRUE" or s.upper() == "T":
-        return 1.
-    else:
-        return 0.  # If we can't understand it, return false
-
 
 # Load all the data at once
-print 'Loading data from ' + filename_data
-data = np.genfromtxt(filename_data, 
-                    delimiter=',', 
-                    skiprows=0,
-                    converters={Col.feasible: get_boolean_from_string,
-                                Col.fathom_too_much_envy_on: get_boolean_from_string,
-                                Col.branch_avg_value_on: get_boolean_from_string,
-                                Col.branch_sos1_envy_on: get_boolean_from_string,
-                                Col.prioritize_avg_value_on: get_boolean_from_string,
-                                }, 
-                    )
-print 'Loaded ' + str(len(data)) + ' rows of data.'
+data = IOUtil.load(filename_data)
 
 # Grab proper iteration data
 num_agents_list = np.unique(data[:,Col.num_agents])
@@ -161,7 +121,7 @@ for obj_type in obj_type_list:
                 proxy_solve_infeas = matplotlib.patches.Rectangle((0,0), width=1, height=0.1, facecolor='DarkGreen')
 
             # Prettify the plot
-            ax.set_title("$N={0:d}$, {1}, {2}".format(int(num_agents), obj_type_map[int(obj_type)], dist_type_map[int(dist_type)]), fontdict=TITLEFONT)
+            ax.set_title("$N={0:d}$, {1}, {2}".format(int(num_agents), IOUtil.obj_type_map[int(obj_type)], IOUtil.dist_type_map[int(dist_type)]), fontdict=TITLEFONT)
             ax.set_ylabel('Fraction Feasible', fontdict=YFONT)
             ax2.set_ylabel('Average Runtime (s)', fontdict=YFONT)
             ax.set_xlabel("$M$", fontdict=XFONT)
