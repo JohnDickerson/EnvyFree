@@ -7,10 +7,11 @@ from matplotlib.font_manager import FontProperties
 import matplotlib.patches as patches   # For the proxy twin-axis legend entry
 
 # Raw .csv file containing data
-filename_data = "../data/big_st_social_welfare.csv"
+#filename_data = "../data/big_st_social_welfare.csv"
+filename_data = "../data/comp_full.csv"
 
 # Include two extra lines, for solve time (feasible) and solve time (infeasible)?
-plot_all_lines = False
+plot_all_lines = True
 
 # Maps column indices to the data they hold
 class Col:

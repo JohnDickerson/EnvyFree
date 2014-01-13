@@ -36,8 +36,11 @@
 # Output and temporary data #
 *.csv
 analysis/*.pdf
+analysis/scratch/*.pdf
 analysis/*.ps
+analysis/scratch/*.ps
 analysis/*.eps
+analysis/scratch/*.eps
 *BAK
 
 # Python compiled files
