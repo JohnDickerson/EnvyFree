@@ -105,7 +105,9 @@ def allocate(model, prefs):
         if prefs.verbose == False:
             p.parameters.mip.display.set(0)
 
+        # CPLEX global parameters 
         p.parameters.threads.set(prefs.num_threads)
+        p.parameters.simplex.tolerances.feasibility.set(1e-9)
 
         #
         # Build the envy-free IP
@@ -113,6 +115,10 @@ def allocate(model, prefs):
         stats['ModelBuildTime'] = build_s
 
         # Register any special branching rules
+        # Must disable CPLEX dynamic search if we have any branching rules
+        if prefs.branch_fathom_too_much_envy or prefs.branch_avg_value or prefs.branch_sos1_envy:
+            p.parameters.mip.strategy.search.set(p.parameters.mip.strategy.search.values.traditional)
+
         # Can have (TooMuchEnvy fathoming + at most 1 other branching rule)
         if prefs.branch_fathom_too_much_envy:
             if prefs.branch_avg_value:

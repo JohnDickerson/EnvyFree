@@ -2,6 +2,12 @@ import cplex
 from cplex.callbacks import BranchCallback, MIPInfoCallback
 import sys
 
+# General note [C API vs. Python API]:
+# Are we indexing into the original model or the reduced/presolved model?
+# "In the C++, Java, .NET, Python, and MATLAB APIs of CPLEX, only the original model is available to callbacks."
+# Source: http://pic.dhe.ibm.com/infocenter/cosinfoc/v12r2/index.jsp?topic=/ilog.odms.cplex.help/Content/Optimization/Documentation/CPLEX/_pubskel/CPLEX980.html
+
+
 class MyTooMuchEnvyBranch(BranchCallback):
 
     """ Fathoms the current path if the number of unallocated items is less than
@@ -18,6 +24,8 @@ class MyTooMuchEnvyBranch(BranchCallback):
         
         br_type = branch.get_branch_type()
         if br_type == branch.branch_type.SOS1 or br_type == branch.branch_type.SOS2:
+            return False
+        if br_type != branch.branch_type.variable:
             return False
 
         x = branch.get_values()
@@ -39,7 +47,7 @@ class MyTooMuchEnvyBranch(BranchCallback):
             i_values = model.u[a_i]
             a_i_allocation_val = 0
             for item_idx, i_index in enumerate(i_indices):
-                a_i_allocation_val += x[i_index] * i_values[item_idx]
+                a_i_allocation_val += (x[i_index]==1.0) * i_values[item_idx]
 
 
             # Check if agent A_i is envious of any other agent A_j
@@ -53,10 +61,11 @@ class MyTooMuchEnvyBranch(BranchCallback):
                 a_j_allocation_val = 0
                 j_indices = [a_j*model.m + j for j in xrange(model.m)]
                 for item_idx, j_index in enumerate(j_indices):
-                    a_j_allocation_val += x[j_index] * i_values[item_idx]
+                    a_j_allocation_val += (x[j_index]==1.0) * i_values[item_idx]
 
                 # Does A_i value A_j's allocation more than her own?
-                if a_i_allocation_val < a_j_allocation_val:
+                # (CPLEX's minimum constraint violation allowance is 1e-9)
+                if (a_i_allocation_val + 1e-9) < a_j_allocation_val:
                     a_i_envious = True
                     break
 
@@ -67,13 +76,16 @@ class MyTooMuchEnvyBranch(BranchCallback):
                 continue
         
         # Unallocated items = M - \sum_{all binaries}
-        num_remaining_items = model.m - sum(x)
+        allocated_items = sum([1 for assgn in x if assgn == 1.0])
+        num_remaining_items = model.m - allocated_items
 
-        #print "Model.m={0}, sum(x)={1}, envy_ct={2}".format(model.m, sum(x), num_envious_agents)
+        fathom_subtree = (num_envious_agents > num_remaining_items)
+        if fathom_subtree:
+            print "Model.m={0}, sum(x)={1}, int(round(sum(x)))={2}, envy_ct={3}, firing={4}".format(model.m, sum(x), allocated_items, num_envious_agents, (num_envious_agents > num_remaining_items))
 
         # Don't explore this subtree if too few items to create E-F allocation
-        # (Calling neither prune() nor make_branch() --> CPLEX branches normally)
-        return num_envious_agents > num_remaining_items
+        # (Call neither prune() nor make_branch() --> CPLEX branches normally)
+        return fathom_subtree
         
 
 class MyBranchOnAvgItemValue(BranchCallback):
@@ -111,7 +123,7 @@ class MyBranchOnAvgItemValue(BranchCallback):
             max_agent_val = -sys.maxint - 1
             max_agent_cand = -1
             for agent_i in xrange(branch.model.n):            
-                if x[agent_i * branch.model.n + item_j] != 0:
+                if int(round(x[agent_i * branch.model.n + item_j])) != 0:
                     allocated = True
                     break
                 elif branch.model.u[agent_i][item_j] > max_agent_val:
