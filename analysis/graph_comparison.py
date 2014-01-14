@@ -18,10 +18,10 @@ verbose = False
 plot_list = [
     {'on': True, 'x': [0,0,0], 'disp': 'Base'},
     {'on': True, 'x': [0,0,1], 'disp': 'Prioritize'},
-    {'on': False, 'x': [0,1,0], 'disp': 'Branch Avg.'},
-    {'on': False, 'x': [0,1,1], 'disp': 'Branch and Prioritize Avg.'},
-    {'on': True, 'x': [1,0,0], 'disp': 'Fathom'},
-    {'on': True, 'x': [1,0,1], 'disp': 'Fathom, Prioritize'},
+    {'on': True, 'x': [0,1,0], 'disp': 'Branch Avg.'},
+    {'on': True, 'x': [0,1,1], 'disp': 'Branch and Prioritize Avg.'},
+    {'on': False, 'x': [1,0,0], 'disp': 'Fathom'},
+    {'on': False, 'x': [1,0,1], 'disp': 'Fathom, Prioritize'},
     {'on': False, 'x': [1,1,0], 'disp': 'Fathom, Branch Avg.'},
     {'on': False, 'x': [1,1,1], 'disp': 'Fathom, Branch and Prioritize Avg.'},
     ]
