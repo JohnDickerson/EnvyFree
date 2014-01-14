@@ -42,6 +42,9 @@ analysis/scratch/*.ps
 analysis/*.eps
 analysis/scratch/*.eps
 *BAK
+__tmp__*
+*.tmp
+
 
 # Python compiled files
 *.py[cod]

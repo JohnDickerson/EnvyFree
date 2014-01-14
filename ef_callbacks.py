@@ -69,7 +69,7 @@ class MyTooMuchEnvyBranch(BranchCallback):
         # Unallocated items = M - \sum_{all binaries}
         num_remaining_items = model.m - sum(x)
 
-        print "Model.m={0}, sum(x)={1}, envy_ct={2}".format(model.m, sum(x), num_envious_agents)
+        #print "Model.m={0}, sum(x)={1}, envy_ct={2}".format(model.m, sum(x), num_envious_agents)
 
         # Don't explore this subtree if too few items to create E-F allocation
         # (Calling neither prune() nor make_branch() --> CPLEX branches normally)
