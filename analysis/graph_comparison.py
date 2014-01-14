@@ -11,6 +11,9 @@ from data_utils import Col, IOUtil
 # Raw .csv file containing data
 filename_data = "../data/comparison.csv"
 
+# Verbose (prints stats on #data points
+verbose = False
+
 # Which combinations of parameters should we plot?
 plot_list = [
     {'on': True, 'x': [0,0,0], 'disp': 'Base'},
@@ -54,6 +57,9 @@ for obj_type in obj_type_list:
 
         for num_agents in num_agents_list:
 
+            if num_agents < 6:
+                continue
+
             print "Obj={0}, Dist={1}, N={2} ...".format(IOUtil.obj_type_map[int(obj_type)], IOUtil.dist_type_map[int(dist_type)], int(num_agents)) 
 
             data_num_agents = [row for row in data 
@@ -81,29 +87,39 @@ for obj_type in obj_type_list:
 
                 # Want to plot (a) %feasible and (b) runtime to prove opt/infeas
                 y_solve_s = []
+                y_feas = []
                 y_solve_s_feas = []
                 y_solve_s_infeas = []
 
                 any_data = False
+                data_pt_count = 0
                 for num_items in num_items_list:
                     
                     # Grab just the data for this {number of agents, number of items}
                     data_num_items = [row for row in specific 
                                       if row[Col.num_items] == num_items]
                     data_solve_s = np.array([row[Col.solve_s] for row in data_num_items])
-                    
+                    data_feas = np.array([row[Col.feasible] for row in data_num_items])
+                    data_solve_s_feas = np.array([row[Col.solve_s] for row in data_num_items
+                                                  if int(row[Col.feasible]) == 1])
+                    data_solve_s_infeas = np.array([row[Col.solve_s] for row in data_num_items
+                                                    if int(row[Col.feasible]) == 0])
+
+
+                    if verbose and num_agents > 6:
+                        print "{0} {1} {2}".format(int(num_agents), int(num_items), len(data_solve_s))
+                        
                     if len(data_solve_s) > 0:
                         any_data = True
                         
                         y_solve_s.append( np.average(data_solve_s) )
-                        
-                        data_solve_s_feas = np.array([row[Col.solve_s] for row in data_num_items
-                                                      if int(row[Col.feasible]) == 1])
-                        data_solve_s_infeas = np.array([row[Col.solve_s] for row in data_num_items
-                                                        if int(row[Col.feasible]) == 0])
+                        y_feas.append( np.average(data_feas) )
+                        print "{0} {1} {2}".format(int(num_agents), int(num_items), np.average(data_feas))
+
                     else:
                         y_solve_s.append( None )
-                        
+                        y_feas.append( None )
+
                     if len(data_solve_s_feas) == 0:
                         y_solve_s_feas.append( None )
                     else:
@@ -118,8 +134,6 @@ for obj_type in obj_type_list:
                 if not any_data:
                     continue
 
-                print len(num_items_list)
-                print len(y_solve_s)
                 ax.plot(num_items_list, y_solve_s,
                         #color='black',
                         label=params['disp']
