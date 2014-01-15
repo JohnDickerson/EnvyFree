@@ -20,6 +20,12 @@ class Model:
         self.u = utilities
         self.m = num_items
         
+        # For experiments, move from [0,1] prefs to [0,1000] prefs
+        # (CPLEX's minimum constraint violation is 1e-9, too small)
+        for agent_u in self.u:
+            for item_j in xrange(len(agent_u)):
+                agent_u[item_j] *= 1000
+
         # Precompute statistics for branching heuristics
         self.m_avg_vals = [None]*self.m
         for j in xrange(self.m):

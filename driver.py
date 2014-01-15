@@ -30,7 +30,7 @@ def run(num_agents, num_items, prefs, dup_values):
     elif prefs.dist_type == DistTypes.correlated_real:
         m = Model.generate_correlated_real(num_agents, num_items)
     else:
-        raise Exception("Distribution type {0} is not recognized.".format(dist_type))
+        raise Exception("Distribution type {0} is not recognized.".format(prefs.dist_type))
 
     # Do our bounding at the root to check for naive infeasibility
     #is_possibly_feasible, bounding_s = bounds.max_contested_feasible(m)
