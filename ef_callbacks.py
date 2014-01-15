@@ -23,8 +23,8 @@ class MyTooMuchEnvyBranch(BranchCallback):
     def should_fathom(branch):
         
         br_type = branch.get_branch_type()
-        if br_type == branch.branch_type.SOS1 or br_type == branch.branch_type.SOS2:
-            return False
+        #if br_type == branch.branch_type.SOS1 or br_type == branch.branch_type.SOS2:
+        #    return False
         if br_type != branch.branch_type.variable:
             return False
 

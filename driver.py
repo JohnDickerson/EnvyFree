@@ -56,19 +56,19 @@ def main():
                       metavar=("N-min","N-max","stepsize"), help="range(a,b,c) iterating over num agents")
     parser.add_argument("-m", type=int, nargs=3, dest="M", default=(5,10,1),
                       metavar=("M-min","M-max","stepsize"), help="range(a,b,c) iterating over num items")
-    parser.add_argument("--obj-feas", action="store_const", const=ObjType.feasibility, dest="obj_type",
+    parser.add_argument("--obj-feas", action="store_const", const=ObjType.feasibility, dest="obj_type", default=ObjType.feasibility,
                       help="Objective function: feasibility")
-    parser.add_argument("--obj-social", action="store_const", const=ObjType.social_welfare_max, dest="obj_type",
+    parser.add_argument("--obj-social", action="store_const", const=ObjType.social_welfare_max, dest="obj_type", default=ObjType.feasibility,
                       help="Objective function: max social welfare")
-    parser.add_argument("--dist-urand-int", action="store_const", const=DistTypes.urand_int, dest="dist_type",
+    parser.add_argument("--dist-urand-int", action="store_const", const=DistTypes.urand_int, dest="dist_type", default=DistTypes.urand_real,
                         help="Utility distribution integral in {0,...,10*#Items}")
-    parser.add_argument("--dist-urand-real", action="store_const", const=DistTypes.urand_real, dest="dist_type",
+    parser.add_argument("--dist-urand-real", action="store_const", const=DistTypes.urand_real, dest="dist_type", default=DistTypes.urand_real,
                         help="Utility distribution u.a.r. real in U[0,1]")
-    parser.add_argument("--dist-zipf-real", action="store_const", const=DistTypes.zipf_real, dest="dist_type",
+    parser.add_argument("--dist-zipf-real", action="store_const", const=DistTypes.zipf_real, dest="dist_type", default=DistTypes.urand_real,
                         help="Utility distribution drawn from Zipf with alpha=2.")
-    parser.add_argument("--dist-polya-urn-real", action="store_const", const=DistTypes.polya_urn_real, dest="dist_type",
+    parser.add_argument("--dist-polya-urn-real", action="store_const", const=DistTypes.polya_urn_real, dest="dist_type", default=DistTypes.urand_real,
                         help="Utility distribution drawn from augmented Polya-Eggenberger urn model.")
-    parser.add_argument("--dist-correlated-real", action="store_const", const=DistTypes.correlated_real, dest="dist_type",
+    parser.add_argument("--dist-correlated-real", action="store_const", const=DistTypes.correlated_real, dest="dist_type", default=DistTypes.urand_real,
                         help="Utility distribution correlated intrinsic item value.")
     parser.add_argument("-s", "--seed", type=long, dest="seed", default=0,
                         help="Sets the random seed in Python")
@@ -98,6 +98,10 @@ def main():
             " any objective other than feasibility (--obj-feas); furthermore, we haven't" \
             " implemented any branching rules for the alternate IP model yet (--fathom-too-much-envy," \
             " --branch-avg-value, --branch-sos1-envy)"
+        sys.exit(-1)
+
+    if args.alternate_IP_model:
+        print "Alternate IP model not implemented yet."
         sys.exit(-1)
 
 
