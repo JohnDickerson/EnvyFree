@@ -92,6 +92,16 @@ def __build_envyfree_problem(p, model, prefs):
 
 
 
+def __build_envyfree_problem_alt(p, model, prefs):
+   
+    start = time.time()
+
+
+    stop = time.time()
+    return stop-start
+
+
+
 
 def allocate(model, prefs):
 
@@ -108,8 +118,11 @@ def allocate(model, prefs):
         p.parameters.threads.set(prefs.num_threads)
 
         #
-        # Build the envy-free IP
-        build_s = __build_envyfree_problem(p, model, prefs)
+        # Build the envy-free IP (either of two models
+        if prefs.alternate_IP_model:
+            build_s = __build_envyfree_problem_alt(p, model, prefs)
+        else:
+            build_s = __build_envyfree_problem(p, model, prefs)
         stats['ModelBuildTime'] = build_s
 
         # Register any special branching rules

@@ -80,12 +80,25 @@ def main():
                         help="SOS1 branch to most envious agent [NOT IMPLEMENTED]")
     parser.add_argument("--prioritize-avg-value", action="store_true", dest="prioritize_avg_value", default=False,
                         help="Sets CPLEX branching priority based on average item value.")
+    parser.add_argument("--alternate-IP-model", action="store_true", dest="alternate_IP_model", default=False,
+                        help="Solves an alternate IP model.")
     parser.add_argument("-v", "--verbose", action="store_true", dest="verbose", default=False,
                         help="Prints a bunch of stats to stdout as we solve models.")
     parser.add_argument("-t", "--num-threads", type=int, default=1, dest="num_threads",
                         help="Sets the number of threads used by CPLEX.")
                       
     args = parser.parse_args()
+
+    if args.alternate_IP_model \
+            and (args.obj_type != ObjType.feasibility \
+                     or args.branch_fathom_too_much_envy \
+                     or args.branch_avg_value \
+                     or args.branch_sos1_envy):
+        print "Argument error: running the alternate IP model (--alternate-IP-model) disallows" \
+            " any objective other than feasibility (--obj-feas); furthermore, we haven't" \
+            " implemented any branching rules for the alternate IP model yet (--fathom-too-much-envy," \
+            " --branch-avg-value, --branch-sos1-envy)"
+        sys.exit(-1)
 
 
     # If a random seed was explicitly passed in, set it
