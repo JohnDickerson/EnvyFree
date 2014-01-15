@@ -6,6 +6,7 @@ class Col:
      num_threads, 
      num_agents, 
      num_items, 
+     alternate_IP_model_on,
      dist_type, 
      N, 
      obj_type, 
@@ -16,7 +17,8 @@ class Col:
      feasible, 
      mip_node_count,
      build_s, 
-     solve_s) = range(18)
+     solve_s,
+     obj_val) = range(20)
 
 
 class IOUtil:
@@ -39,11 +41,13 @@ class IOUtil:
         data = np.genfromtxt(filename_data, 
                              delimiter=',', 
                              skiprows=0,
-                             converters={Col.feasible: IOUtil.get_boolean_from_string,
-                                         Col.fathom_too_much_envy_on: IOUtil.get_boolean_from_string,
-                                         Col.branch_avg_value_on: IOUtil.get_boolean_from_string,
-                                         Col.branch_sos1_envy_on: IOUtil.get_boolean_from_string,
-                                         Col.prioritize_avg_value_on: IOUtil.get_boolean_from_string,
+                             converters={
+                Col.alternate_IP_model_on: IOUtil.get_boolean_from_string,
+                Col.feasible: IOUtil.get_boolean_from_string,
+                Col.fathom_too_much_envy_on: IOUtil.get_boolean_from_string,
+                Col.branch_avg_value_on: IOUtil.get_boolean_from_string,
+                Col.branch_sos1_envy_on: IOUtil.get_boolean_from_string,
+                Col.prioritize_avg_value_on: IOUtil.get_boolean_from_string,
                                          }, 
                              )
         print 'Loaded ' + str(len(data)) + ' rows of data.'

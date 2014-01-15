@@ -100,11 +100,6 @@ def main():
             " --branch-avg-value, --branch-sos1-envy)"
         sys.exit(-1)
 
-    if args.alternate_IP_model:
-        print "Alternate IP model not implemented yet."
-        sys.exit(-1)
-
-
     # If a random seed was explicitly passed in, set it
     if hasattr(args, "seed"):
         random.seed(args.seed)
@@ -158,13 +153,14 @@ def main():
                     # If we're recording ALL data, write details for this one run
                     if write_all:
                         writer.writerow([args.seed, args.num_threads,
-                                         num_agents, num_items, 
+                                         num_agents, num_items, args.alternate_IP_model,
                                          args.dist_type, args.num_repeats, args.obj_type, 
                                          args.branch_fathom_too_much_envy, stats['MyTooMuchEnvyBranch'],
                                          args.branch_avg_value, stats['MyBranchOnAvgItemValue'],
                                          args.branch_sos1_envy, stats['MyBranchSOS1Envy'],
                                          args.prioritize_avg_value,
-                                         sol_exists, stats['MIPNodeCount'], build_s, solve_s])
+                                         sol_exists, stats['MIPNodeCount'], build_s, solve_s, stats['MIPObjVal']
+                                         ])
                         csvfile.flush()
 
                 # Report stats over all N runs, both to stdout and to out.csv
@@ -178,7 +174,7 @@ def main():
 
                 # If we're only writing aggregate data, write that now
                 if not write_all:
-                    writer.writerow([args.seed, num_agents, num_items, 
+                    writer.writerow([args.seed, num_agents, num_items, args.alternate_IP_model,
                                      args.dist_type, args.num_repeats, args.obj_type, 
                                      args.branch_fathom_too_much_envy,
                                      args.branch_avg_value,

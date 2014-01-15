@@ -9,10 +9,10 @@ for ((i=0; i<${reps}; i++ ))
 do
     seed=`expr ${seedbase} + ${i}`
     out=${tmpbase}${seed}
-    echo "${i}, no fathom"
-    VERSIONER_PYTHON_PREFER_32_BIT=yes python driver.py -f ${out}A -n 8 9 1 -m 14 15 1 --seed ${seed} --num_repeats 1 --obj-feas --dist-urand-real
-    echo "${i}, fathom"
-    VERSIONER_PYTHON_PREFER_32_BIT=yes python driver.py -f ${out}B -n 8 9 1 -m 14 15 1 --seed ${seed} --num_repeats 1 --obj-feas --dist-urand-real --fathom-too-much-envy
+    echo "${i}, model 1"
+    VERSIONER_PYTHON_PREFER_32_BIT=yes python driver.py -f ${out}A -n 8 9 1 -m 14 15 1 --seed ${seed} --num_repeats 1 --obj-feas --dist-urand-real 
+    echo "${i}, model 2"
+    VERSIONER_PYTHON_PREFER_32_BIT=yes python driver.py -f ${out}B -n 8 9 1 -m 14 15 1 --seed ${seed} --num_repeats 1 --obj-feas --dist-urand-real --alternate-IP-model
 done
 
 # Combines all runs from each parameter vector into a single file;

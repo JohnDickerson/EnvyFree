@@ -92,10 +92,79 @@ def __build_envyfree_problem(p, model, prefs):
 
 
 
+# Essentially the same IP as __build_envyfree_problem, but with
+# a single additional variable representing the max envy between
+# any two pair of agents
 def __build_envyfree_problem_alt(p, model, prefs):
    
     start = time.time()
 
+    # Set objective function
+    # Objective: 0*[binary allocation variables] + 1*[envy variable]
+    p.objective.set_sense(p.objective.sense.minimize)
+    obj = [0]*len(__flatten(model.u)) + [1]
+
+    
+    # One binary variable per item per agent, and one continuous variable
+    # representing the maximum envy between pairs of agents
+    lb = [0]*(len(obj)-1) + [0]
+    ub = [1]*(len(obj)-1) + [cplex.infinity]
+    types = "I"*(len(obj)-1) + "C"
+
+    p.variables.add(obj = obj,
+                    lb = lb,
+                    ub = ub,
+                    types = types,
+                    )
+
+    
+    #
+    # Now build the constraint matrix (incrementally)
+    rows = []
+    senses = []
+    rhs = []
+
+    # Each item can be allocated to exactly one agent [SOS1]
+    # For each item j, \sum_i x_{ij} = 1
+    for j in xrange(model.m):
+        rows.append([ [j + i*model.m for i in xrange(model.n)],
+                      [1]*model.n
+                      ])
+        senses.append("E")
+        rhs.append(1)
+
+    # For each allocation A_i to agent i, and each allocation A_j to agent j,
+    # make sure agent i values A_i at least as much as she values A_j
+    E_idx = len(obj)-1   # E variable is the last column
+    for a_i in xrange(model.n):
+
+        # Add A_i's valuation for her allocation 
+        i_indices = [a_i*model.m + j for j in xrange(model.m)]
+        i_values = model.u[a_i]
+
+        for a_j in xrange(model.n):
+
+            # Agent i is not envious of her own allocation
+            if a_i == a_j:
+                continue
+        
+            # Subtract off A_i's value for each of A_j's allocated items
+            j_indices = [a_j*model.m + j for j in xrange(model.m)]
+            j_values = [ -1*val for val in model.u[a_i] ]
+
+            rows.append([ i_indices + j_indices + [E_idx],
+                          i_values + j_values + [1.0]
+                          ])
+            
+            # {my val, my bundle} - {my val, your bundle} + E >= 0
+            # For envy-free, sets E = 0 via minimization of objective
+            senses.append("G")
+            rhs.append(0)
+
+    p.linear_constraints.add(lin_expr = rows,
+                             rhs = rhs, 
+                             senses = senses,
+                             )
 
     stop = time.time()
     return stop-start
@@ -208,15 +277,24 @@ def allocate(model, prefs):
         # Was there a solution? (not guaranteed for envy-free)
         feasible = True
         sol = p.solution
+
         if sol.get_status() == 3 or sol.get_status() == 103:
             feasible = False
+            stats['MIPObjVal'] = 0
         else:
-            if prefs.verbose:
-                print "{0:d}:  {1}   ||   Objective value: {2:2f}".format(
-                    sol.get_status(), 
-                    sol.status[sol.get_status()], 
-                    sol.get_objective_value())
-
+            # If we're using the second IP, E-F exists if objective <= 0
+            # check if the obj is >0 (plus CPLEX's default constraint violation error)
+            if prefs.alternate_IP_model and sol.get_objective_value() > 1e-6:
+                feasible = False
+            stats['MIPObjVal'] = sol.get_objective_value()
+            
+            if feasible == True:
+                if prefs.verbose:
+                    print "{0:d}:  {1}   ||   Objective value: {2:2f}".format(
+                        sol.get_status(), 
+                        sol.status[sol.get_status()], 
+                        sol.get_objective_value())
+                    
         stats['ModelFeasible'] = feasible
 
         # Keep stats on feasibility, time
