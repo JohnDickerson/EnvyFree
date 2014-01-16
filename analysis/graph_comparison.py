@@ -9,27 +9,29 @@ import matplotlib.patches as patches   # For the proxy twin-axis legend entry
 from data_utils import Col, IOUtil
 
 # Raw .csv file containing data
-filename_data = "../data/comparison.csv"
+filename_data = "../data/comparison_models.csv"
 
 # Verbose (prints stats on #data points
 verbose = False
 
 # Which combinations of parameters should we plot?
 plot_list = [
-    {'on': True, 'x': [0,0,0], 'disp': 'Base'},
-    {'on': True, 'x': [0,0,1], 'disp': 'Prioritize'},
-    {'on': True, 'x': [0,1,0], 'disp': 'Branch Avg.'},
-    {'on': True, 'x': [0,1,1], 'disp': 'Branch and Prioritize Avg.'},
-    {'on': False, 'x': [1,0,0], 'disp': 'Fathom'},
-    {'on': False, 'x': [1,0,1], 'disp': 'Fathom, Prioritize'},
-    {'on': False, 'x': [1,1,0], 'disp': 'Fathom, Branch Avg.'},
-    {'on': False, 'x': [1,1,1], 'disp': 'Fathom, Branch and Prioritize Avg.'},
+    {'on': True, 'x': [0,0,0,0], 'disp': 'Model 1'},
+    {'on': False, 'x': [0,0,1,0], 'disp': 'Prioritize'},
+    {'on': False, 'x': [0,1,0,0], 'disp': 'Branch Avg.'},
+    {'on': False, 'x': [0,1,1,0], 'disp': 'Branch and Prioritize Avg.'},
+    {'on': False, 'x': [1,0,0,0], 'disp': 'Fathom'},
+    {'on': False, 'x': [1,0,1,0], 'disp': 'Fathom, Prioritize'},
+    {'on': False, 'x': [1,1,0,0], 'disp': 'Fathom, Branch Avg.'},
+    {'on': False, 'x': [1,1,1,0], 'disp': 'Fathom, Branch and Prioritize Avg.'},
+    {'on': True, 'x': [0,0,0,1], 'disp': 'Model 2'},
     ]
-tweak_map = [Col.fathom_too_much_envy_on, 
-             Col.branch_avg_value_on, 
-             Col.prioritize_avg_value_on
-             ]
-
+tweak_map = [
+    Col.fathom_too_much_envy_on, 
+    Col.branch_avg_value_on, 
+    Col.prioritize_avg_value_on,
+    Col.alternate_IP_model_on,
+    ]
 
 
 matplotlib.rcParams['ps.useafm'] = True
@@ -57,8 +59,8 @@ for obj_type in obj_type_list:
 
         for num_agents in num_agents_list:
 
-            if num_agents < 6:
-                continue
+            #if num_agents < 6:
+            #    continue
 
             print "Obj={0}, Dist={1}, N={2} ...".format(IOUtil.obj_type_map[int(obj_type)], IOUtil.dist_type_map[int(dist_type)], int(num_agents)) 
 
@@ -83,6 +85,7 @@ for obj_type in obj_type_list:
                             if row[tweak_map[0]] == params['x'][0]
                             and row[tweak_map[1]] == params['x'][1]
                             and row[tweak_map[2]] == params['x'][2]
+                            and row[tweak_map[3]] == params['x'][3]
                             ]
 
                 # Want to plot (a) %feasible and (b) runtime to prove opt/infeas
@@ -114,7 +117,7 @@ for obj_type in obj_type_list:
                         
                         y_solve_s.append( np.average(data_solve_s) )
                         y_feas.append( np.average(data_feas) )
-                        print "{0} {1} {2}".format(int(num_agents), int(num_items), np.average(data_feas))
+                        
 
                     else:
                         y_solve_s.append( None )
