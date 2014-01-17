@@ -14,6 +14,11 @@ filename_data = "../data/comparison_models.csv"
 # Verbose (prints stats on #data points
 verbose = False
 
+# Should we use a timeout penalty?  If so, how much?
+timeout_penalty_on = True
+timeout_penalty_s = 10 * (8*60*60)
+print "Timeout penalty: {0} @ {1} seconds".format(timeout_penalty_on, timeout_penalty_s)
+
 # Which combinations of parameters should we plot?
 plot_list = [
     {'on': True, 'x': [0,0,0,0], 'disp': 'Model 1'},
@@ -48,9 +53,16 @@ data = IOUtil.load(filename_data)
 
 # Grab proper iteration data
 num_agents_list = np.unique(data[:,Col.num_agents])
-num_items_list = np.unique(data[:,Col.num_items])
+#num_items_list = np.unique(data[:,Col.num_items])
 dist_type_list = np.unique(data[:,Col.dist_type])
 obj_type_list = np.unique(data[:,Col.obj_type]) 
+
+dashes = [
+    '-.', #   : dashed line
+    '-',  #   : solid line
+    '--', #   : dash-dot line
+    ':',  #   : dotted line
+    ]
 
 # Make the phase transition graphs
 for obj_type in obj_type_list:
@@ -59,8 +71,8 @@ for obj_type in obj_type_list:
 
         for num_agents in num_agents_list:
 
-            #if num_agents < 6:
-            #    continue
+            if num_agents != 10 and num_agents != 6: continue
+            num_items_list = range(int(num_agents),30)
 
             print "Obj={0}, Dist={1}, N={2} ...".format(IOUtil.obj_type_map[int(obj_type)], IOUtil.dist_type_map[int(dist_type)], int(num_agents)) 
 
@@ -73,6 +85,7 @@ for obj_type in obj_type_list:
             # Plot all parameterizations on the same canvas
             fig = plt.figure()
             ax = fig.add_subplot(111)
+            plot_ct = 0  # Restart our indexing into linestyles
 
             for params in plot_list:
                 
@@ -96,6 +109,7 @@ for obj_type in obj_type_list:
 
                 any_data = False
                 data_pt_count = 0
+                old_data_ct = -1
                 for num_items in num_items_list:
                     
                     # Grab just the data for this {number of agents, number of items}
@@ -108,16 +122,24 @@ for obj_type in obj_type_list:
                     data_solve_s_infeas = np.array([row[Col.solve_s] for row in data_num_items
                                                     if int(row[Col.feasible]) == 0])
 
+                    # If we're on the first data point, assume no timeouts and start recording old data points
+                    if old_data_ct <= 0:
+                        timeout_ct = 0
+                    else:
+                        timeout_ct = old_data_ct - len(data_solve_s)
+                    old_data_ct = len(data_solve_s)
 
                     if verbose and num_agents > 6:
-                        print "{0} {1} {2}".format(int(num_agents), int(num_items), len(data_solve_s))
+                        print "N={0} M={1} Data={2} Dropped={3}".format(int(num_agents), int(num_items), len(data_solve_s), timeout_ct)
                         
                     if len(data_solve_s) > 0:
                         any_data = True
-                        
+
+                        if timeout_penalty_on:
+                            data_solve_s = np.append( data_solve_s, [timeout_penalty_s]*timeout_ct )
+
                         y_solve_s.append( np.average(data_solve_s) )
                         y_feas.append( np.average(data_feas) )
-                        
 
                     else:
                         y_solve_s.append( None )
@@ -138,14 +160,15 @@ for obj_type in obj_type_list:
                     continue
 
                 ax.plot(num_items_list, y_solve_s,
-                        #color='black',
+                        color='black',
+                        linestyle=dashes[plot_ct % len(dashes)],
                         label=params['disp']
                         )
+                plot_ct += 1
 
-            # Fraction feasible is in [0,1]
-            #plt.ylim(0.0, 1.0)
                 try:
-                    ax.set_xscale('log')
+                    #ax.set_xscale('log')
+                    pass
                 except ValueError:
                     print "Skipping log-scale for N={0:d}".format(int(num_agents))
                     ax.set_xscale('linear')
@@ -156,8 +179,8 @@ for obj_type in obj_type_list:
             ax.set_xlabel("$M$", fontdict=XFONT)
 
             plt.legend(
-                       prop={'size':6},
-                       loc='upper left',
+                       #prop={'size':6},
+                       loc='upper right',
                        )
 
             plt.savefig("comparison_n{0:d}_objtype{1:d}_dist{2:d}.pdf".format(int(num_agents), int(obj_type), int(dist_type)), format='pdf', bbox_inches='tight')

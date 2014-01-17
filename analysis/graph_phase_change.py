@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.font_manager import FontProperties
 import matplotlib.patches as patches   # For the proxy twin-axis legend entry
-from data_utils import Col, IOUtil
+from data_utils import OldCol as Col
+from data_utils import IOUtil
 
 # Raw .csv file containing data
 filename_data = "../data/big_st_social_welfare.csv"
@@ -23,8 +24,8 @@ TITLEFONT={'fontsize':24}
 TINYFONT={'fontsize':6}
 
 
-# Load all the data at once
-data = IOUtil.load(filename_data)
+# Load all the data at once (OLDER data)
+data = IOUtil.load_old_data(filename_data)
 
 # Grab proper iteration data
 num_agents_list = np.unique(data[:,Col.num_agents])
@@ -32,12 +33,24 @@ num_items_list = np.unique(data[:,Col.num_items])
 dist_type_list = np.unique(data[:,Col.dist_type])
 obj_type_list = np.unique(data[:,Col.obj_type]) 
 
+dashes = [
+    '-', #   : solid line
+    ':',  #   : dotted line
+    '-.',  #   : dashed line
+    '--', #   : dash-dot line
+    ]
+
 # Make the phase transition graphs
 for obj_type in obj_type_list:
 
     for dist_type in dist_type_list:
 
         for num_agents in num_agents_list:
+
+            if num_agents != 10: continue
+            num_items_list = range(int(num_agents),30)
+
+            print "Obj={0}, Dist={1}, N={2} ...".format(IOUtil.obj_type_map[int(obj_type)], IOUtil.dist_type_map[int(dist_type)], int(num_agents)) 
 
             data_num_agents = [row for row in data 
                                if row[Col.num_agents] == num_agents 
@@ -88,37 +101,43 @@ for obj_type in obj_type_list:
             # Plot both lines (%feas and runtime) on same x-axis, with two y-axes
             fig = plt.figure()
             ax = fig.add_subplot(111)
-            plot_feas = ax.plot(num_items_list, y_feas,
+            plot_ct = 0  # Restart our indexing into linestyles
+            plot_feas = ax.plot(num_items_list, y_feas, label="Frac. Feasible",
                                 color='crimson',
+                                linestyle=dashes[plot_ct % len(dashes)],
+                                linewidth=2,
                                 )
-            proxy_feas = matplotlib.patches.Rectangle((0,0), width=1, height=0.1, facecolor='crimson')
-
+            plot_ct += 1
+            
             # Fraction feasible is in [0,1]
             plt.ylim(0.0, 1.0)
             try:
-                ax.set_xscale('log')
+                #ax.set_xscale('log')
+                pass
             except ValueError:
                 print "Skipping log-scale for N={0:d}".format(int(num_agents))
                 ax.set_xscale('linear')
 
             ax2 = ax.twinx()
-            plot_solve = ax2.plot(num_items_list, y_solve_s,
+            plot_solve = ax2.plot(num_items_list, y_solve_s, label="Solve Time (s)",
                                   color='black',
+                                  linestyle=dashes[plot_ct % len(dashes)],
+                                  linewidth=2,
                                   )
-            proxy_solve = matplotlib.patches.Rectangle((0,0), width=1, height=0.1, facecolor='black')
+            plot_ct += 1
 
             if plot_all_lines:
-                plot_solve_feas = ax2.plot(num_items_list, y_solve_s_feas,
-                                           color='DarkBlue',
-                                           #linestyle='-^',
+                plot_solve_feas = ax2.plot(num_items_list, y_solve_s_feas, label="Solve Time (feas)",
+                                           color='black',
+                                           linestyle=dashes[plot_ct % len(dashes)],
                                            )
-                proxy_solve_feas = matplotlib.patches.Rectangle((0,0), width=1, height=0.1, facecolor='DarkBlue')
+                plot_ct += 1
 
-                plot_solve_infeas = ax2.plot(num_items_list, y_solve_s_infeas,
-                                             color='DarkGreen',
-                                             #linestyle='-o',
+                plot_solve_infeas = ax2.plot(num_items_list, y_solve_s_infeas, label="Solve Time (infeas)",
+                                             color='black',
+                                             linestyle=dashes[plot_ct % len(dashes)],
                                              )
-                proxy_solve_infeas = matplotlib.patches.Rectangle((0,0), width=1, height=0.1, facecolor='DarkGreen')
+                plot_ct += 1
 
             # Prettify the plot
             ax.set_title("$N={0:d}$, {1}, {2}".format(int(num_agents), IOUtil.obj_type_map[int(obj_type)], IOUtil.dist_type_map[int(dist_type)]), fontdict=TITLEFONT)
@@ -126,16 +145,10 @@ for obj_type in obj_type_list:
             ax2.set_ylabel('Average Runtime (s)', fontdict=YFONT)
             ax.set_xlabel("$M$", fontdict=XFONT)
 
-            if plot_all_lines:
-                plt.legend([proxy_feas, proxy_solve, proxy_solve_feas, proxy_solve_infeas],
-                           ["Frac. Feasible", "Solve Time (s)", "Solve Time (feas)", "Solve Time (infeas)"],
-                           loc='upper right',
-                           )
-            else:
-                plt.legend([proxy_feas, proxy_solve],
-                           ["Frac. Feasible", "Solve Time (s)"],
-                           loc='upper right',
-                           )
+            lns = plot_feas + plot_solve 
+            if plot_all_lines: lns += plot_solve_feas + plot_solve_infeas    
+            labs = [l.get_label() for l in lns]
+            plt.legend(lns, labs, loc='upper right',)
 
             plt.savefig("phase_transition_n{0:d}_objtype{1:d}_dist{2:d}.pdf".format(int(num_agents), int(obj_type), int(dist_type)), format='pdf', bbox_inches='tight')
             plt.clf()

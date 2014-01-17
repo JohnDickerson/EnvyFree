@@ -1,6 +1,6 @@
 #!/bin/csh
 
-set objectve = "--obj-feas"
+set objective = "--obj-feas"
 foreach n_min ( 10 10 10 10 )
     @ n_max = $n_min + 1
 
