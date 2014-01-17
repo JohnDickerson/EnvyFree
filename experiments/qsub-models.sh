@@ -2,7 +2,7 @@
 
 ###### Number of CPUs MUST be a multiple of 16
 #PBS -l ncpus=160
-#PBS -l walltime=8:00:00
+#PBS -l walltime=12:00:00
 
 ###### combine stderr and stdout to one file
 #PBS -j oe
