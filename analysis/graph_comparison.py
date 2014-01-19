@@ -174,9 +174,9 @@ for obj_type in obj_type_list:
                     ax.set_xscale('linear')
 
             # Prettify the plot
-            ax.set_title("$N={0:d}$, {1}, {2}".format(int(num_agents), IOUtil.obj_type_map[int(obj_type)], IOUtil.dist_type_map[int(dist_type)]), fontdict=TITLEFONT)
+            ax.set_title("$n={0:d}$, {1}, {2}".format(int(num_agents), IOUtil.obj_type_map[int(obj_type)], IOUtil.dist_type_map[int(dist_type)]), fontdict=TITLEFONT)
             ax.set_ylabel('Average Runtime (s)', fontdict=YFONT)
-            ax.set_xlabel("$M$", fontdict=XFONT)
+            ax.set_xlabel("$m$", fontdict=XFONT)
 
             plt.legend(
                        #prop={'size':6},

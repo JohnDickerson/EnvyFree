@@ -140,10 +140,10 @@ for obj_type in obj_type_list:
                 plot_ct += 1
 
             # Prettify the plot
-            ax.set_title("$N={0:d}$, {1}, {2}".format(int(num_agents), IOUtil.obj_type_map[int(obj_type)], IOUtil.dist_type_map[int(dist_type)]), fontdict=TITLEFONT)
+            ax.set_title("$n={0:d}$, {1}, {2}".format(int(num_agents), IOUtil.obj_type_map[int(obj_type)], IOUtil.dist_type_map[int(dist_type)]), fontdict=TITLEFONT)
             ax.set_ylabel('Fraction Feasible', fontdict=YFONT)
             ax2.set_ylabel('Average Runtime (s)', fontdict=YFONT)
-            ax.set_xlabel("$M$", fontdict=XFONT)
+            ax.set_xlabel("$m$", fontdict=XFONT)
 
             lns = plot_feas + plot_solve 
             if plot_all_lines: lns += plot_solve_feas + plot_solve_infeas    
