@@ -5,11 +5,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.font_manager import FontProperties
 import matplotlib.patches as patches   # For the proxy twin-axis legend entry
-from data_utils import OldCol as Col
 from data_utils import IOUtil
 
+# Some of the older runs have a different .csv structure
+using_old_data = False
+if using_old_data:
+    from data_utils import OldCol as Col
+else:
+    from data_utils import Col as Col
+
 # Raw .csv file containing data
-filename_data = "../data/big_st_social_welfare.csv"
+filename_data = "../data/comparison_models_12hr.csv"  #"../data/big_st_social_welfare.csv"
 
 # Include two extra lines, for solve time (feasible) and solve time (infeasible)?
 plot_all_lines = True
@@ -23,6 +29,10 @@ YFONT={'fontsize':24}
 TITLEFONT={'fontsize':24}
 TINYFONT={'fontsize':6}
 
+# Should we use a timeout penalty?  If so, how much?
+timeout_penalty_on = False
+timeout_penalty_s = 1 * (12*60*60)   # K*12hr penalty
+print "Timeout penalty: {0} @ {1} seconds".format(timeout_penalty_on, timeout_penalty_s)
 
 # Load all the data at once (OLDER data)
 data = IOUtil.load_old_data(filename_data)
@@ -65,6 +75,7 @@ for obj_type in obj_type_list:
             y_solve_s_infeas = []
 
             any_data = False
+            old_data_ct = -1
             for num_items in num_items_list:
 
                 # Grab just the data for this {number of agents, number of items}
@@ -74,8 +85,18 @@ for obj_type in obj_type_list:
                 data_feas = np.array([row[Col.feasible] for row in data_num_items])
                 data_solve_s = np.array([row[Col.solve_s] for row in data_num_items])
 
+                # If we're on the first data point, assume no timeouts and start recording old data points
+                if old_data_ct <= 0:
+                    timeout_ct = 0
+                else:
+                    timeout_ct = old_data_ct - len(data_solve_s)
+                old_data_ct = len(data_solve_s)
+
                 if len(data_solve_s) > 0:
                     any_data = True
+
+                    if timeout_penalty_on:
+                        data_solve_s = np.append( data_solve_s, [timeout_penalty_s]*timeout_ct )
 
                 y_feas.append( np.average(data_feas) )
                 y_solve_s.append( np.average(data_solve_s) )

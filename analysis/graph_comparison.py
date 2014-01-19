@@ -9,14 +9,14 @@ import matplotlib.patches as patches   # For the proxy twin-axis legend entry
 from data_utils import Col, IOUtil
 
 # Raw .csv file containing data
-filename_data = "../data/comparison_models.csv"
+filename_data = "../data/comparison_models_12hr.csv"
 
 # Verbose (prints stats on #data points
-verbose = False
+verbose = True
 
 # Should we use a timeout penalty?  If so, how much?
 timeout_penalty_on = True
-timeout_penalty_s = 10 * (8*60*60)
+timeout_penalty_s = (12*60*60)   # K*12hr penalty
 print "Timeout penalty: {0} @ {1} seconds".format(timeout_penalty_on, timeout_penalty_s)
 
 # Which combinations of parameters should we plot?
