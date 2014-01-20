@@ -7,15 +7,16 @@ from matplotlib.font_manager import FontProperties
 import matplotlib.patches as patches   # For the proxy twin-axis legend entry
 from data_utils import IOUtil
 
+# Raw .csv file containing data
+#filename_data = "../data/comparison_models_12hr.csv"
+filename_data = "../data/big_st_social_welfare.csv"
+
 # Some of the older runs have a different .csv structure
-using_old_data = False
+using_old_data = True
 if using_old_data:
     from data_utils import OldCol as Col
 else:
     from data_utils import Col as Col
-
-# Raw .csv file containing data
-filename_data = "../data/comparison_models_12hr.csv"  #"../data/big_st_social_welfare.csv"
 
 # Include two extra lines, for solve time (feasible) and solve time (infeasible)?
 plot_all_lines = True
@@ -57,7 +58,7 @@ for obj_type in obj_type_list:
 
         for num_agents in num_agents_list:
 
-            if num_agents != 10: continue
+            #if num_agents != 10: continue
             num_items_list = range(int(num_agents),30)
 
             print "Obj={0}, Dist={1}, N={2} ...".format(IOUtil.obj_type_map[int(obj_type)], IOUtil.dist_type_map[int(dist_type)], int(num_agents)) 
@@ -98,7 +99,11 @@ for obj_type in obj_type_list:
                     if timeout_penalty_on:
                         data_solve_s = np.append( data_solve_s, [timeout_penalty_s]*timeout_ct )
 
-                y_feas.append( np.average(data_feas) )
+                feas_frac = np.average(data_feas)
+                if feas_frac >= 0.99:
+                    print "W.h.p. exists @ n={0}, m={1}".format(int(num_agents), int(num_items))
+
+                y_feas.append( feas_frac )
                 y_solve_s.append( np.average(data_solve_s) )
 
                 data_solve_s_feas = np.array([row[Col.solve_s] for row in data_num_items
