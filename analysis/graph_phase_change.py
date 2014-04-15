@@ -31,9 +31,13 @@ TITLEFONT={'fontsize':24}
 TINYFONT={'fontsize':6}
 
 # Should we use a timeout penalty?  If so, how much?
-timeout_penalty_on = False
+timeout_penalty_on = True
 timeout_penalty_s = 1 * (12*60*60)   # K*12hr penalty
 print "Timeout penalty: {0} @ {1} seconds".format(timeout_penalty_on, timeout_penalty_s)
+
+# Plot averages or medians for runtime?
+do_average = True
+print "Plotting", ("average" if do_average else "median"), "runtimes."
 
 # Load all the data at once (OLDER data)
 data = IOUtil.load_old_data(filename_data)
@@ -104,7 +108,11 @@ for obj_type in obj_type_list:
                     print "W.h.p. exists @ n={0}, m={1}".format(int(num_agents), int(num_items))
 
                 y_feas.append( feas_frac )
-                y_solve_s.append( np.average(data_solve_s) )
+                
+                if do_average:
+                    y_solve_s.append( np.average(data_solve_s) )
+                else:
+                    y_solve_s.append( np.median(data_solve_s) )
 
                 data_solve_s_feas = np.array([row[Col.solve_s] for row in data_num_items
                                               if int(row[Col.feasible]) == 1])
@@ -113,12 +121,18 @@ for obj_type in obj_type_list:
                 if len(data_solve_s_feas) == 0:
                     y_solve_s_feas.append( None )
                 else:
-                    y_solve_s_feas.append( np.average(data_solve_s_feas) )
+                    if do_average:
+                        y_solve_s_feas.append( np.average(data_solve_s_feas) )
+                    else:
+                        y_solve_s_feas.append( np.median(data_solve_s_feas) )
 
                 if len(data_solve_s_infeas) == 0:
                     y_solve_s_infeas.append( None )
                 else:
-                    y_solve_s_infeas.append( np.average(data_solve_s_infeas) )
+                    if do_average:
+                        y_solve_s_infeas.append( np.average(data_solve_s_infeas) )
+                    else:
+                        y_solve_s_infeas.append( np.median(data_solve_s_infeas) )
 
             # If we didn't read any valid data points (solve times), skip plotting
             if not any_data:
@@ -168,7 +182,11 @@ for obj_type in obj_type_list:
             # Prettify the plot
             ax.set_title("$n={0:d}$, {1}, {2}".format(int(num_agents), IOUtil.obj_type_map[int(obj_type)], IOUtil.dist_type_map[int(dist_type)]), fontdict=TITLEFONT)
             ax.set_ylabel('Fraction Feasible', fontdict=YFONT)
-            ax2.set_ylabel('Average Runtime (s)', fontdict=YFONT)
+            if do_average:
+                ax2.set_ylabel('Average Runtime (s)', fontdict=YFONT)
+            else:
+                ax2.set_ylabel('Median Runtime (s)', fontdict=YFONT)
+
             ax.set_xlabel("$m$", fontdict=XFONT)
 
             lns = plot_feas + plot_solve 

@@ -9,15 +9,20 @@ import matplotlib.patches as patches   # For the proxy twin-axis legend entry
 from data_utils import Col, IOUtil
 
 # Raw .csv file containing data
-filename_data = "../data/comparison_models_12hr.csv"
+#filename_data = "../data/comparison_models_12hr.csv" # use this for n=10 graphs
+filename_data = "../data/comparison_models.csv"      # use this for n<10 graphs
 
 # Verbose (prints stats on #data points
 verbose = True
 
 # Should we use a timeout penalty?  If so, how much?
 timeout_penalty_on = True
-timeout_penalty_s = (12*60*60)   # K*12hr penalty
+timeout_penalty_s = 1 * (12*60*60)   # K*12hr penalty
 print "Timeout penalty: {0} @ {1} seconds".format(timeout_penalty_on, timeout_penalty_s)
+
+# Plot averages or medians for runtime?
+do_average = False
+print "Plotting", ("average" if do_average else "median"), "runtimes."
 
 # Which combinations of parameters should we plot?
 plot_list = [
@@ -138,7 +143,11 @@ for obj_type in obj_type_list:
                         if timeout_penalty_on:
                             data_solve_s = np.append( data_solve_s, [timeout_penalty_s]*timeout_ct )
 
-                        y_solve_s.append( np.average(data_solve_s) )
+                        if do_average:
+                            y_solve_s.append( np.average(data_solve_s) )
+                        else:
+                            y_solve_s.append( np.median(data_solve_s) )
+
                         y_feas.append( np.average(data_feas) )
 
                     else:
@@ -148,13 +157,17 @@ for obj_type in obj_type_list:
                     if len(data_solve_s_feas) == 0:
                         y_solve_s_feas.append( None )
                     else:
-                        y_solve_s_feas.append( np.average(data_solve_s_feas) )
-
+                        if do_average:
+                            y_solve_s_feas.append( np.average(data_solve_s_feas) )
+                        else:
+                            y_solve_s_feas.append( np.median(data_solve_s_feas) )
                     if len(data_solve_s_infeas) == 0:
                         y_solve_s_infeas.append( None )
                     else:
-                        y_solve_s_infeas.append( np.average(data_solve_s_infeas) )
-
+                        if do_average:
+                            y_solve_s_infeas.append( np.average(data_solve_s_infeas) )
+                        else:
+                            y_solve_s_infeas.append( np.median(data_solve_s_infeas) )
                 # If we didn't read any valid data points (solve times), skip plotting
                 if not any_data:
                     continue
@@ -175,7 +188,10 @@ for obj_type in obj_type_list:
 
             # Prettify the plot
             ax.set_title("$n={0:d}$, {1}, {2}".format(int(num_agents), IOUtil.obj_type_map[int(obj_type)], IOUtil.dist_type_map[int(dist_type)]), fontdict=TITLEFONT)
-            ax.set_ylabel('Average Runtime (s)', fontdict=YFONT)
+            if do_average:
+                ax.set_ylabel('Average Runtime (s)', fontdict=YFONT)
+            else:
+                ax.set_ylabel('Median Runtime (s)', fontdict=YFONT)
             ax.set_xlabel("$m$", fontdict=XFONT)
 
             plt.legend(

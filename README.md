@@ -20,3 +20,8 @@ If you receive a `no module named cplex` error, set the `PYTHONPATH` environment
 If you are running Mac OS X 10.6+, you need to run Python as a 32-bit application (as opposed to the default 64-bit version), since the CPLEX Python connector currently only exists in 32-bit.  Try running the following:
 
     VERSIONER_PYTHON_PREFER_32_BIT=yes python driver.py
+
+Related Research
+================
+
+_The Computational Rise and Fall of Fairness_.  John P. Dickerson, Jonathan Goldman, Jeremy Karp, Ariel D. Procaccia, Tuomas Sandholm.  **AAAI-2014**.  [Link](http://johnpdickerson.com/pubs/dickerson14computational.pdf "John P. Dickerson")
