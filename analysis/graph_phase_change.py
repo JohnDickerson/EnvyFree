@@ -29,6 +29,7 @@ XFONT={'fontsize':24}
 YFONT={'fontsize':24}
 TITLEFONT={'fontsize':24}
 TINYFONT={'fontsize':6}
+TICKFONT={'fontsize':16}
 
 # Should we use a timeout penalty?  If so, how much?
 timeout_penalty_on = True
@@ -36,7 +37,7 @@ timeout_penalty_s = 1 * (12*60*60)   # K*12hr penalty
 print "Timeout penalty: {0} @ {1} seconds".format(timeout_penalty_on, timeout_penalty_s)
 
 # Plot averages or medians for runtime?
-do_average = True
+do_average = False
 print "Plotting", ("average" if do_average else "median"), "runtimes."
 
 # Load all the data at once (OLDER data)
@@ -188,6 +189,8 @@ for obj_type in obj_type_list:
                 ax2.set_ylabel('Median Runtime (s)', fontdict=YFONT)
 
             ax.set_xlabel("$m$", fontdict=XFONT)
+            ax.tick_params(axis='both', which='major', labelsize=TICKFONT['fontsize'])
+            ax2.tick_params(axis='both', which='major', labelsize=TICKFONT['fontsize'])
 
             lns = plot_feas + plot_solve 
             if plot_all_lines: lns += plot_solve_feas + plot_solve_infeas    

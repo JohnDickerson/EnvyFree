@@ -52,6 +52,7 @@ XFONT={'fontsize':24}
 YFONT={'fontsize':24}
 TITLEFONT={'fontsize':24}
 TINYFONT={'fontsize':6}
+TICKFONT={'fontsize':16}
 
 # Load data
 data = IOUtil.load(filename_data)
@@ -193,6 +194,8 @@ for obj_type in obj_type_list:
             else:
                 ax.set_ylabel('Median Runtime (s)', fontdict=YFONT)
             ax.set_xlabel("$m$", fontdict=XFONT)
+
+            ax.tick_params(axis='both', which='major', labelsize=TICKFONT['fontsize'])
 
             plt.legend(
                        #prop={'size':6},
